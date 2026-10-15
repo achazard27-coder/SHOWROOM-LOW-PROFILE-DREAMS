@@ -41,8 +41,8 @@ function BrandCard({ brand }: { brand: Brand }) {
 
   return (
     <div className="brand-card" aria-label={brand.name}>
-      {src && !broken && <img src={src} alt="" loading="lazy" onError={() => setBroken(true)} />}
-      <span className={brand.small ? 'brand-name small' : 'brand-name'}>{brand.name}</span>
+      {src && !broken && <img className={brand.logo ? 'brand-logo-vector' : 'brand-icon'} src={src} alt={brand.logo ? brand.name : ''} loading="lazy" onError={() => setBroken(true)} />}
+      {(!brand.logo || broken) && <span className={brand.small ? 'brand-name small' : 'brand-name'}>{brand.name}</span>}
     </div>
   );
 }
