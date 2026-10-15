@@ -1,83 +1,84 @@
-'use client';
-
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useMotionValue, animate, motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import useMeasure from 'react-use-measure';
 
-type InfiniteSliderProps = {
-  children: ReactNode;
-  gap?: number;
-  duration?: number;
-  durationOnHover?: number;
-  direction?: 'horizontal' | 'vertical';
-  reverse?: boolean;
-  className?: string;
-};
+type Props = { children: ReactNode; gap?: number; className?: string };
 
-export function InfiniteSlider({
-  children,
-  gap = 16,
-  duration = 25,
-  durationOnHover,
-  direction = 'horizontal',
-  reverse = false,
-  className,
-}: InfiniteSliderProps) {
-  const [currentDuration, setCurrentDuration] = useState(duration);
-  const [ref, { width, height }] = useMeasure();
-  const translation = useMotionValue(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [key, setKey] = useState(0);
+export function InfiniteSlider({ children, gap = 32, className }: Props) {
+  const track = useRef<HTMLDivElement>(null);
+  const group = useRef<HTMLDivElement>(null);
+  const position = useRef(0);
+  const touchStart = useRef<number | null>(null);
+  const width = useRef(0);
+  const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [reduced, setReduced] = useState(false);
+  const stop = paused || hovered || focused || reduced;
 
   useEffect(() => {
-    const size = direction === 'horizontal' ? width : height;
-    if (size === 0) return;
-    const contentSize = size + gap;
-    const from = reverse ? -contentSize / 2 : 0;
-    const to = reverse ? 0 : -contentSize / 2;
-    const start = isTransitioning ? translation.get() : from;
-    const time = isTransitioning
-      ? currentDuration * Math.abs((translation.get() - to) / contentSize)
-      : currentDuration;
+    const query = matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(query.matches);
+    update(); query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
-    const controls = animate(translation, [start, to], {
-      ease: 'linear',
-      duration: Math.max(0.02, time),
-      repeat: isTransitioning ? 0 : Infinity,
-      repeatType: 'loop',
-      repeatDelay: 0,
-      onComplete: isTransitioning
-        ? () => { setIsTransitioning(false); setKey((n) => n + 1); }
-        : undefined,
-      onRepeat: () => translation.set(from),
-    });
-    return () => controls.stop();
-  }, [key, translation, currentDuration, width, height, gap, isTransitioning, direction, reverse]);
+  useEffect(() => {
+    const element = group.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() => { width.current = element.getBoundingClientRect().width; });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
-  const hoverProps = durationOnHover
-    ? {
-        onHoverStart: () => { setIsTransitioning(true); setCurrentDuration(durationOnHover); },
-        onHoverEnd: () => { setIsTransitioning(true); setCurrentDuration(duration); }
+  useEffect(() => {
+    if (stop) return;
+    let frame = 0, previous = 0;
+    const tick = (time: number) => {
+      const distance = width.current;
+      if (distance && track.current) {
+        if (previous && !stop && !document.hidden) position.current += Math.min(time - previous, 64) * 0.032;
+        position.current = ((position.current % distance) + distance) % distance;
+        track.current.style.transform = `translate3d(${-position.current}px,0,0)`;
       }
-    : {};
+      previous = time;
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [stop]);
 
-  return (
-    <div className={cn('overflow-hidden', className)}>
-      <motion.div
-        className="flex w-max"
-        style={{
-          ...(direction === 'horizontal' ? { x: translation } : { y: translation }),
-          gap: gap + 'px',
-          flexDirection: direction === 'horizontal' ? 'row' : 'column'
-        }}
-        ref={ref}
-        {...hoverProps}
-      >
-        {children}
-        {children}
-      </motion.div>
+  const move = (direction: number) => {
+    setPaused(true);
+    const card = group.current?.firstElementChild as HTMLElement | null;
+    position.current += direction * ((card?.offsetWidth ?? 220) + gap);
+    const distance = width.current;
+    if (distance && track.current) {
+      position.current = ((position.current % distance) + distance) % distance;
+      track.current.style.transform = `translate3d(${-position.current}px,0,0)`;
+    }
+  };
+
+  return <div className={cn('logo-carousel', className)} role="region" aria-label="Marcas representadas"
+    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+    onFocusCapture={() => setFocused(true)} onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
+    <div className="logo-viewport" onTouchStart={e => { touchStart.current = e.touches[0].clientX; }}
+      onTouchEnd={e => {
+        if (touchStart.current === null) return;
+        const delta = touchStart.current - e.changedTouches[0].clientX;
+        if (Math.abs(delta) > 30) move(delta > 0 ? 1 : -1);
+        touchStart.current = null;
+      }}>
+      <div ref={track} className="logo-track">
+        <div ref={group} className="logo-group" style={{ gap, paddingRight: gap }}>{children}</div>
+        <div className="logo-group" style={{ gap, paddingRight: gap }} aria-hidden="true">{children}</div>
+      </div>
     </div>
-  );
+    <div className="carousel-controls">
+      <span>Explore nossas marcas</span>
+      <button type="button" onClick={() => move(-1)} aria-label="Ver marcas anteriores"><ArrowLeft size={18}/></button>
+      <button type="button" onClick={() => setPaused(!paused)} aria-pressed={paused || reduced} disabled={reduced} aria-label={paused ? 'Reproduzir carrossel' : 'Pausar carrossel'}>{paused || reduced ? <Play size={16}/> : <Pause size={16}/>}</button>
+      <button type="button" onClick={() => move(1)} aria-label="Ver próximas marcas"><ArrowRight size={18}/></button>
+    </div>
+  </div>;
 }

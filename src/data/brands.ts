@@ -1,21 +1,16 @@
-export type Brand = { name: string; domain?: string; logo?: string; small?: boolean };
-
-// Only genuine marks are allowed in public/logos. The Google favicon endpoint
-// below is a live, brand-owned web icon reference, never a recreated logo.
+export type Brand = { name: string; logo: string; caption?: string; small?: boolean };
+// Verified source artwork from brand websites; no remote hotlinks or substitute favicons.
 export const brands: Brand[] = [
-  { name: 'ANIMALE', domain: 'animale.com.br', logo: 'https://cdn.brandfetch.io/idygPGzAYW/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1781797240189' },
-  { name: 'NATI VOZZA', domain: 'bynv.com.br', small: true },
-  { name: 'FARM', domain: 'farmrio.com.br', logo: 'https://cdn.brandfetch.io/id2qDb4Zvp/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1772916176016' },
-  { name: 'FÁBULA & BENTO', small: true },
-  { name: 'FOXTON', domain: 'foxtonbrasil.com.br', logo: 'https://cdn.brandfetch.io/idD0HOtRXB/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1740142384463' },
-  { name: 'ETC' },
-  { name: 'MELISSA', domain: 'melissa.com.br' },
-  { name: 'OSKLEN', domain: 'osklen.com.br', logo: 'https://cdn.brandfetch.io/idd-n1_oy4/w/820/h/101/theme/light/logo.png?c=1bxid64Mup7aczewSAYMX&t=1781838522776' },
-  { name: 'TOMMY HILFIGER', domain: 'tommy.com', small: true, logo: 'https://cdn.brandfetch.io/idXzJSRLEO/theme/light/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1668076772443' },
-  { name: 'CARLOTA COSTA', domain: 'carlotacosta.com.br', small: true },
-  { name: 'PANŌ', small: false },
-  { name: 'INSIDER', domain: 'insiderstore.com.br', logo: 'https://cdn.brandfetch.io/idne6Ik71f/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1780630914840' }
+ {name:'ANIMALE',logo:'/logos/animale.svg'},
+ {name:'NATI VOZZA',logo:'/logos/nv.svg'},
+ {name:'FARM',logo:'/logos/farm.svg'},
+ {name:'FÁBULA & BENTO',logo:'/logos/fabula.svg',caption:'FÁBULA & BENTO'},
+ {name:'FOXTON',logo:'/logos/foxton.svg'},
+ {name:'ETC',logo:'/logos/etc.svg'},
+ {name:'MELISSA',logo:'/logos/melissa.png'},
+ {name:'OSKLEN',logo:'/logos/osklen.svg'},
+ {name:'TOMMY HILFIGER',logo:'/logos/tommy.svg'},
+ {name:'CARLOTA COSTA',logo:'/logos/carlota.webp'},
+ {name:'PANŌ',logo:'/logos/pano.png',caption:'PANŌ'},
+ {name:'INSIDER',logo:'/logos/insider.svg'}
 ];
-
-// Use an official SVG or 512px+ PNG supplied/approved by the brand for each
-// logo field. External favicons are only a provisional gallery treatment.

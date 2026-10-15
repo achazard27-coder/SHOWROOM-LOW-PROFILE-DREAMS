@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from 'lucide-react';
 import { InfiniteSlider } from '@/components/ui/infinite-slider';
 import { brands, type Brand } from './data/brands';
-import { spaces, realPhotos, galleryUsesRealPhotos, type SpaceId } from './data/gallery';
+import { spaces, realPhotos, galleryUsesRealPhotos, imageUrl, imageSet, type SpaceId } from './data/gallery';
 
 function formatCnpj(input: string) {
   const n = input.replace(/\D/g, '').slice(0, 14);
@@ -35,19 +35,20 @@ function formatPhone(input: string) {
 
 function BrandCard({ brand }: { brand: Brand }) {
   const [broken, setBroken] = useState(false);
-  const src = brand.logo || (brand.domain
-    ? 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(brand.domain) + '&sz=256'
-    : '');
+  const src = brand.logo || '';
 
   return (
     <div className="brand-card" aria-label={brand.name}>
-      {src && !broken && <img className={brand.logo ? 'brand-logo-vector' : 'brand-icon'} src={src} alt={brand.logo ? brand.name : ''} loading="lazy" onError={() => setBroken(true)} />}
+      {src && !broken && <img className="brand-logo-vector" src={src} alt={brand.logo ? brand.name : ''} decoding="async" onError={() => setBroken(true)} />}
+      {brand.caption && !broken && <span className="brand-caption">{brand.caption}</span>}
       {(!brand.logo || broken) && <span className={brand.small ? 'brand-name small' : 'brand-name'}>{brand.name}</span>}
     </div>
   );
 }
 
 function App() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [formVisible, setFormVisible] = useState(false);
   const [activeSpace, setActiveSpace] = useState<SpaceId>('dreams');
   const [activePhoto, setActivePhoto] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -72,18 +73,32 @@ function App() {
   }
 
   useEffect(() => {
+    const form = document.getElementById('contato');
+    if (!form) return;
+    const observer = new IntersectionObserver(([entry]) => setFormVisible(entry.isIntersecting), {threshold: 0.08});
+    observer.observe(form);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (!modalOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setModalOpen(false);
-      if (e.key === 'ArrowRight') movePhoto(1);
-      if (e.key === 'ArrowLeft') movePhoto(-1);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [modalOpen, photos.length]);
+    const dialog = dialogRef.current;
+    const previous = document.activeElement as HTMLElement | null;
+    dialog?.showModal();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { dialog?.close(); document.body.style.overflow = overflow; previous?.focus(); };
+  }, [modalOpen]);
+
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('keydown', close);
+    return () => document.removeEventListener('keydown', close);
+  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (status === 'sending' || status === 'success') return;
     const form = e.currentTarget;
     const data = new FormData(form);
     if (!validCnpj(cnpj)) {
@@ -152,13 +167,13 @@ function App() {
 
       <main id="main">
         <section id="inicio" className="hero">
-          <img className="hero-photo" src={spaces[0].photos[0].url} alt={spaces[0].photos[0].alt} />
+          <img className="hero-photo" src={imageUrl(spaces[0].photos[0].url, 1600)} srcSet={imageSet(spaces[0].photos[0].url)} sizes="100vw" alt={spaces[0].photos[0].alt} fetchPriority="high" width={1200} height={1600} />
           <div className="hero-shade" />
           <div className="hero-copy">
             <span className="eyebrow white">LOW PROFILE + DREAMS <span className="dash" /> VILA VELHA / ES</span>
             <h1>Referência de<br />moda no estado <em>ES.</em></h1>
             <p>Uma vitrine de marcas, espaços e conexões para lojistas.</p>
-            <a className="hero-button" href="#espacos">Conheça o showroom <ArrowUpRight size={18} /></a>
+            <div className="hero-actions"><a className="hero-button" href="#contato">Agende sua visita <ArrowUpRight size={18} /></a><a className="hero-secondary" href="#espacos">Explore os espaços <ArrowDown size={16}/></a></div>
           </div>
           <div className="hero-footnote">
             <span>{galleryUsesRealPhotos ? 'LOW PROFILE + DREAMS / GALERIA' : 'WIREFRAME · FOTOS ILUSTRATIVAS'}</span>
@@ -175,9 +190,9 @@ function App() {
             </div>
           </div>
 
-          <div className="space-tabs" role="tablist" aria-label="Escolha um espaço">
+          <div className="space-tabs" role="group" aria-label="Escolha um espaço">
             {spaces.map((space, index) =>
-              <button key={space.id} type="button" role="tab" aria-selected={activeSpace === space.id} onClick={() => setSpace(space.id)} className={'space-tab ' + (activeSpace === space.id ? 'selected' : '')}>
+              <button key={space.id} type="button" aria-pressed={activeSpace === space.id} onClick={() => setSpace(space.id)} className={'space-tab ' + (activeSpace === space.id ? 'selected' : '')}>
                 <span className="tab-number">{String(index + 1).padStart(2, '0')}</span> {space.title}
                 <ArrowUpRight size={16} />
               </button>
@@ -186,14 +201,14 @@ function App() {
 
           <div className="gallery-photos">
             <button type="button" className="gallery-main" onClick={() => { setActivePhoto(0); setModalOpen(true); }} aria-label={'Ampliar imagem principal de ' + currentSpace.title}>
-              <img src={photos[0].url} alt={photos[0].alt} />
+              <img src={imageUrl(photos[0].url, 1200)} srcSet={imageSet(photos[0].url)} sizes="(max-width:760px) 100vw, 62vw" alt={photos[0].alt} loading="lazy" decoding="async" width={1200} height={1600} />
               <span className="photo-label">{currentSpace.title} <ArrowUpRight size={18} /></span>
             </button>
             <div className="gallery-side">
               {photos.slice(1, 3).map((photo, i) =>
                 <button type="button" className="gallery-secondary" key={photo.url + i} onClick={() => { setActivePhoto(i + 1); setModalOpen(true); }} aria-label={'Ampliar imagem ' + (i + 2)}>
-                  <img src={photo.url} alt={photo.alt} loading="lazy" />
-                  <span className="image-number">0{i + 2} / 03</span>
+                  <img src={imageUrl(photo.url, 800)} srcSet={imageSet(photo.url)} sizes="(max-width:760px) 46vw, 30vw" alt={photo.alt} loading="lazy" decoding="async" width={1200} height={1600} />
+                  <span className="image-number">0{i + 2} / {String(photos.length).padStart(2, '0')}</span>
                 </button>
               )}
             </div>
@@ -203,11 +218,12 @@ function App() {
             <span>{illustrative ? 'IMAGENS DE BANCO — NÃO RETRATAM O SHOWROOM REAL' : 'FOTOGRAFIAS DO SHOWROOM'}</span>
             <button type="button" onClick={() => { setActivePhoto(0); setModalOpen(true); }}>Ver galeria completa <ArrowUpRight size={17} /></button>
           </div>
+          <a href="#contato" className="gallery-cta">Gostou dos espaços? Agende sua visita <ArrowUpRight size={18}/></a>
         </section>
 
         <section id="sobre" className="feature-section">
           <div className="feature-photo">
-            <img src={spaces[1].photos[0].url} alt={spaces[1].photos[0].alt} loading="lazy" />
+            <img src={imageUrl(spaces[1].photos[0].url, 1200)} srcSet={imageSet(spaces[1].photos[0].url)} sizes="(max-width:760px) 100vw, 50vw" alt={spaces[1].photos[0].alt} loading="lazy" decoding="async" width={1200} height={1600} />
           </div>
           <div className="feature-content">
             <p className="eyebrow">02 / SHOWROOM</p>
@@ -228,7 +244,7 @@ function App() {
               </div>
             </div>
           </div>
-          <InfiniteSlider gap={18} duration={40} durationOnHover={130} className="brand-marquee">
+          <InfiniteSlider gap={32} className="brand-marquee">
             {brands.map((brand) => <BrandCard key={brand.name} brand={brand} />)}
           </InfiniteSlider>
           <div className="section-shell brands-bottom">
@@ -251,6 +267,8 @@ function App() {
             <div className="contact-location"><MapPin size={19} strokeWidth={1.5} /><span>Vila Velha, Espírito Santo</span></div>
           </div>
           <form className="lead-form" name="lojistas" onSubmit={handleSubmit}>
+            <input type="hidden" name="form-name" value="lojistas"/>
+            <label className="honeypot" aria-hidden="true">Não preencher<input name="bot-field" tabIndex={-1} autoComplete="off"/></label>
             <div className="form-head"><span>CADASTRO DE LOJISTA</span><span>01 / 01</span></div>
             <label> Cidade / UF <span>*</span>
               <input name="cidade" required maxLength={90} autoComplete="address-level2" placeholder="Ex.: Vitória / ES" />
@@ -300,14 +318,17 @@ function App() {
           </details>
         </div>
       </footer>
-      <a className="mobile-sticky" href="#contato">Seja um parceiro <ArrowUpRight size={18} /></a>
+      <a className={'mobile-sticky' + (formVisible || modalOpen || menuOpen ? ' sticky-hidden' : '')} href="#contato">Seja um parceiro <ArrowUpRight size={18} /></a>
 
-      {modalOpen && <div className="lightbox" role="dialog" aria-modal="true" aria-label={'Galeria ' + currentSpace.title}>
-        <button type="button" className="lightbox-close" onClick={() => setModalOpen(false)} aria-label="Fechar galeria"><X size={25} /></button>
+      {modalOpen && <dialog ref={dialogRef} className="lightbox" aria-label="Galeria do showroom"
+        onCancel={() => setModalOpen(false)} onClick={e => { if (e.target === e.currentTarget) setModalOpen(false); }}
+        onKeyDown={e => { if(e.key === 'ArrowRight') movePhoto(1); if(e.key === 'ArrowLeft') movePhoto(-1); }}>
+        <button type="button" autoFocus className="lightbox-close" onClick={() => setModalOpen(false)} aria-label="Fechar galeria"><X size={25} /></button>
         <button type="button" className="lightbox-prev" onClick={() => movePhoto(-1)} aria-label="Imagem anterior"><ArrowLeft size={23} /></button>
-        <figure><img src={currentImage.url} alt={currentImage.alt} /><figcaption>{currentSpace.title} / {String(activePhoto + 1).padStart(2, '0')} de {String(photos.length).padStart(2, '0')}{illustrative && ' · Imagem ilustrativa'}</figcaption></figure>
+        <figure><img src={imageUrl(currentImage.url, 1600)} alt={currentImage.alt} /><figcaption aria-live="polite">{currentImage.alt} / {String(activePhoto + 1).padStart(2, '0')} de {String(photos.length).padStart(2, '0')}</figcaption></figure>
         <button type="button" className="lightbox-next" onClick={() => movePhoto(1)} aria-label="Próxima imagem"><ArrowRight size={23} /></button>
-      </div>}
+      </dialog>}
+
     </>
   );
 }
