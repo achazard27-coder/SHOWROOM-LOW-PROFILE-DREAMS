@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from 'lucide-react';
+import PolaroidLineCarousel from '@/components/ui/polaroid-line-carousel';
+import { showroomSlides } from './data/showroom';
 import { InfiniteSlider } from '@/components/ui/infinite-slider';
 import { brands, type Brand } from './data/brands';
 import { spaces, realPhotos, galleryUsesRealPhotos, imageUrl, imageSet, type SpaceId } from './data/gallery';
@@ -221,17 +223,18 @@ function App() {
           <a href="#contato" className="gallery-cta">Gostou dos espaços? Agende sua visita <ArrowUpRight size={18}/></a>
         </section>
 
-        <section id="sobre" className="feature-section">
-          <div className="feature-photo">
-            <img src={imageUrl(spaces[1].photos[0].url, 1200)} srcSet={imageSet(spaces[1].photos[0].url)} sizes="(max-width:760px) 100vw, 50vw" alt={spaces[1].photos[0].alt} loading="lazy" decoding="async" width={1200} height={1600} />
+        <section id="sobre" className="showroom-section" aria-labelledby="showroom-title">
+          <div className="section-shell showroom-heading">
+            <div><p className="eyebrow">02 / SHOWROOM</p>
+              <h2 id="showroom-title">Sua próxima coleção<br/><em>começa aqui.</em></h2>
+            </div>
+            <div className="showroom-pitch"><p>Veja os detalhes. Conheça as marcas. Escolha de perto o que faz sentido para sua loja.</p>
+              <a href="#contato" className="showroom-primary">Agendar uma visita <ArrowUpRight size={18}/></a>
+              <span>Atendimento a lojistas · Vila Velha / ES</span>
+            </div>
           </div>
-          <div className="feature-content">
-            <p className="eyebrow">02 / SHOWROOM</p>
-            <h2>A moda ganha<br /><em>espaço.</em></h2>
-            <p>Conheça de perto nossas coleções e o universo de cada marca.</p>
-            <a href="#contato" className="text-arrow">Agende sua visita <ArrowUpRight size={19} /></a>
-            {!realPhotos.low.length && <span className="feature-disclaimer">IMAGEM ILUSTRATIVA</span>}
-          </div>
+          <PolaroidLineCarousel slides={showroomSlides} height="clamp(560px, 76svh, 700px)" cardWidth={300} sag={28} swing={0.4} autoplay={0} background="#eae7df" ink="#252521" ariaLabel="Conheça o showroom em oito fotos reais"/>
+          <div className="section-shell showroom-bottom"><p>Arraste as fotos ou use as setas para explorar.</p><a href="#contato" className="text-arrow">Quero conhecer o showroom <ArrowUpRight size={18}/></a></div>
         </section>
 
         <section id="marcas" className="brands-section">
