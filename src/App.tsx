@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Check, Instagram, MapPin, Menu, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from 'lucide-react';
 import { InfiniteSlider } from '@/components/ui/infinite-slider';
 import { brands, type Brand } from './data/brands';
 import { spaces, realPhotos, galleryUsesRealPhotos, type SpaceId } from './data/gallery';
@@ -292,7 +292,7 @@ function App() {
           <div className="footer-bottom">
             <span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span>
             <span>VILA VELHA / ES</span>
-            <a href="https://www.instagram.com/" aria-label="Instagram (destino provisório)" title="Instagram oficial a confirmar"><Instagram size={18} /></a>
+            <a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /></a>
           </div>
           <details id="privacidade" className="privacy-info">
             <summary>Privacidade e dados</summary>
