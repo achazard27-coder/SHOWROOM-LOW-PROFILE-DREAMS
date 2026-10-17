@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-motion';
+import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -55,7 +55,7 @@ function ExpandedPhoto({ card, index, total, brandName, partnerHref, close, move
     <button autoFocus type="button" className="layout-photo-close" onClick={close} aria-label="Fechar fotografia"><X size={25} /></button>
     <motion.div className="layout-photo-expanded" layoutId={reduced ? undefined : `card-${card.id}`} transition={transition}>
       <figure onTouchStart={event => { const point = event.touches[0]; touch.current = { x: point.clientX, y: point.clientY }; }} onTouchEnd={event => { const start = touch.current; const end = event.changedTouches[0]; touch.current = null; if (start && Math.abs(end.clientX - start.x) > 50 && Math.abs(end.clientX - start.x) > Math.abs(end.clientY - start.y) * 1.2) move(end.clientX < start.x ? 1 : -1); }}>
-        <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} transition={transition} src={card.fullSrc || card.thumbnail} alt={card.alt} width={1200} height={1600} decoding="async" className="layout-photo-full" />
+        <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} transition={transition} src={card.fullSrc || card.thumbnail} alt={card.alt} width={1200} height={1600} loading="lazy" decoding="async" className="layout-photo-full" />
         <motion.figcaption key={card.id} layoutId={reduced ? undefined : `content-${card.id}`} initial={{ opacity: 0, y: reduced ? 0 : 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : .25 }}>
           <div><div className="layout-photo-copy">{card.content}</div><PhotoCredit card={card} /></div>
           <span className="layout-photo-count" aria-live="polite">{index + 1} / {total}</span>
@@ -72,7 +72,7 @@ export function LayoutGrid({ cards, brandName, partnerHref, onOpenChange }: Layo
   const reduced = useReducedMotion();
   const id = useId();
   const open = (index: number) => { setLastSelected(selected); setSelected(index); onOpenChange?.(true); };
-  const close = () => { setLastSelected(selected); setSelected(null); };
+  const close = () => { setLastSelected(selected); setSelected(null); onOpenChange?.(false); };
   const move = (direction: number) => { if (cards.length > 1) setSelected(index => ((index ?? 0) + direction + cards.length) % cards.length); };
   return <LayoutGroup id={id}>
     <div className="layout-photo-grid">
@@ -85,6 +85,6 @@ export function LayoutGrid({ cards, brandName, partnerHref, onOpenChange }: Layo
         {(card.kind === 'product' || card.sourceUrl) && <div className="layout-card-credit"><PhotoCredit card={card} /></div>}
       </motion.div>)}
     </div>
-    <AnimatePresence onExitComplete={() => onOpenChange?.(false)}>{selected !== null && cards[selected] && <ExpandedPhoto key="expanded-photo" card={cards[selected]} index={selected} total={cards.length} brandName={brandName} partnerHref={partnerHref} close={close} move={move} />}</AnimatePresence>
+    <>{selected !== null && cards[selected] && <ExpandedPhoto key="expanded-photo" card={cards[selected]} index={selected} total={cards.length} brandName={brandName} partnerHref={partnerHref} close={close} move={move} />}</>
   </LayoutGroup>;
 }

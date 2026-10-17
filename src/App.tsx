@@ -154,7 +154,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     <a className="skip-link" href="#main">Pular para o conteúdo</a>
     <header ref={menuRef} className="site-header">
       <div className="header-shell">
-        <a href="/" className="logo-lockup" aria-label="Lowprofile & Dreams — início"><img src="/logo-lp.png" alt="LOW PROFILE + DREAMS" width={556} height={100} /></a>
+        <a href="/" className="logo-lockup" aria-label="Lowprofile & Dreams — início"><img src="/logo-lp.png" alt="LOW PROFILE + DREAMS" width={556} height={100} loading="lazy" decoding="async" /></a>
         <nav className="desktop-links" aria-label="Navegação principal">
           <button ref={brandsButtonRef} type="button" className={'nav-brands' + (brandsOpen ? ' is-open' : '')} aria-expanded={brandsOpen} aria-controls="brand-mega-menu" onClick={() => setBrandsOpen(!brandsOpen)}>Marcas <ChevronDown size={14} /></button>
           <a href="/sobre-nos/" aria-current={page.kind === 'about' ? 'page' : undefined}>Sobre nós</a>

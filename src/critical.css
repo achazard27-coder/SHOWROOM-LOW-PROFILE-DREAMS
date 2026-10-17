@@ -37,7 +37,7 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
 .eyebrow { color: #62615b; }
 .eyebrow.white { color: #fff; }
 .site-header { position: sticky; top: 0; background: #f6f5f1f5; backdrop-filter: blur(10px); }
-.header-shell { min-height: 64px; height: 64px; grid-template-columns: minmax(0, 1fr) 44px; gap: 12px; padding-inline: var(--gutter); }
+.header-shell { min-height: 63px; height: 63px; grid-template-columns: minmax(0, 1fr) 44px; gap: 12px; padding-inline: var(--gutter); }
 .logo-lockup { width: fit-content; min-height: 44px; max-width: min(75vw, 220px); }
 .logo-lockup img { width: auto; max-height: 28px; }
 .desktop-links, .header-contact { display: none; }
@@ -82,3 +82,7 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
 @media (max-width: 399px) { .hero-footnote a { display: none; } }
 @media (min-width: 640px) { .hero-actions { flex-direction: row; width: fit-content; } .hero-button, .hero-secondary { width: auto; gap: 24px; } }
 
+
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+section[id], #privacidade { scroll-margin-top: clamp(64px, 8vw, 96px); }
