@@ -14,7 +14,7 @@
 .gallery-category-nav span { font-size: 12px; color: #62615b; }
 .gallery-category-nav svg { margin-left: auto; }
 .tgh-root { width: 100%; height: auto; min-height: 0; overflow: hidden; }
-.tgh-viewport { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-inline: contain; padding-block: 8px; }
+.tgh-viewport { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-inline: contain; touch-action: pan-x; padding-block: 8px; }
 .tgh-track, .tgh-group { display: flex; width: max-content; gap: 16px; }
 .tgh-track { gap: 0; }
 .tgh-group { padding-right: 16px; padding-left: 0; }
@@ -27,6 +27,7 @@
 .gallery-selector-action p { font-size: 16px; margin: 0; }
 @keyframes tgh-loop { to { transform: translateX(-50%); } }
 @media (min-width: 640px) { .gallery-category-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
+@media (max-width: 1023px) { .tgh-controls > button { display: none; } }
 @media (min-width: 1024px) { .showroom-heading { grid-template-columns: 1.5fr 1fr; align-items: end; } .tgh-viewport { overflow: hidden; scroll-snap-type: none; } .tgh-card { width: 360px; flex-basis: 360px; } .tgh-loop { animation: tgh-loop 85s linear infinite; will-change: transform; } .tgh-scroll-controls { display: none; } .tgh-controls { justify-content: flex-end; } }
 
 /* Brand index and brand galleries. */
