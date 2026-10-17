@@ -67,6 +67,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
+  const [afterHero, setAfterHero] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
   const brandsButtonRef = useRef<HTMLButtonElement>(null);
   const firstRoute = useRef(true);
@@ -111,10 +112,23 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     setFormVisible(false);
     const form = document.getElementById('contato');
     if (!form) return;
-    const observer = new IntersectionObserver(([entry]) => setFormVisible(entry.isIntersecting), { threshold: 0.08 });
+    const observer = new IntersectionObserver(([entry]) => setFormVisible(entry.isIntersecting), { threshold: 0 });
     observer.observe(form);
     return () => observer.disconnect();
   }, [location]);
+  useEffect(() => {
+    const hero = document.querySelector('.hero');
+    setAfterHero(!hero);
+    if (!hero) return;
+    const observer = new IntersectionObserver(([entry]) => setAfterHero(entry.boundingClientRect.bottom <= 64), { rootMargin: '-64px 0px 0px 0px', threshold: 0 });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [location]);
+  const showPartnerBar = afterHero && !formVisible && !selectorOpen && !galleryOpen && !menuOpen;
+  useEffect(() => {
+    document.body.classList.toggle('has-partner-bar', showPartnerBar);
+    return () => document.body.classList.remove('has-partner-bar');
+  }, [showPartnerBar]);
   function navigate(event: MouseEvent<HTMLDivElement>) {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href]');
@@ -180,7 +194,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     </main>
 
     <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} loading="lazy" decoding="async" /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /> low.dreams@hotmail.com</a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
-    <a className={'partner-sticky' + (formVisible || selectorOpen || galleryOpen || menuOpen ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
+    <a className={'partner-sticky' + (!showPartnerBar ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
 
     {selectorOpen && <Modal label="Escolha uma marca para ver sua galeria" onClose={() => setSelectorOpen(false)} className="brand-selector"><p className="eyebrow">GALERIA COMPLETA</p><h2>Qual marca você<br />quer conhecer?</h2><p>Escolha uma marca e explore a sua galeria.</p><BrandGrid onChoose={() => setSelectorOpen(false)} /></Modal>}
 

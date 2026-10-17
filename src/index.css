@@ -796,3 +796,11 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
 .privacy-info summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; }
 .privacy-info p { font-size: 13px; line-height: 1.5; }
 @media (min-width: 640px) { .footer-upper { flex-direction: row; justify-content: space-between; } .footer-links { width: auto; } }
+
+/* Persistent partner action respects the hero, form and safe area. */
+body.has-partner-bar { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+.partner-sticky { position: fixed; inset: auto 0 0; width: 100%; height: calc(56px + env(safe-area-inset-bottom)); min-height: 56px; max-width: none; margin: 0; padding: 0 var(--gutter) env(safe-area-inset-bottom); display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 0; border-top: 1px solid #d7d4cb; border-radius: 0; background: #f6f5f1; color: #24231f; z-index: 35; transform: none; box-shadow: 0 -4px 20px #0001; }
+.partner-sticky > span { font-size: 12px; line-height: 1.4; max-width: 55%; }
+.partner-sticky strong { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.2; }
+.partner-sticky.sticky-hidden { visibility: hidden; opacity: 0; pointer-events: none; transform: translateY(100%); }
+body.has-partner-bar #nl-badge-frame { bottom: calc(64px + env(safe-area-inset-bottom)) !important; }
