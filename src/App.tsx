@@ -145,7 +145,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     <main id="main" tabIndex={-1}>
       {page.kind === 'home' && <>
         <section className="hero" aria-labelledby="hero-title">
-          {homeGalleryPhotos[4] && <img className="hero-photo" src={imageUrl(homeGalleryPhotos[4].url, 1600)} srcSet={imageSet(homeGalleryPhotos[4].url)} sizes="100vw" alt={homeGalleryPhotos[4].alt} {...{ fetchpriority: 'high' }} width={1200} height={1600} />}
+          {homeGalleryPhotos[4] && <img className="hero-photo" src={imageUrl(homeGalleryPhotos[4].url, 1600)} srcSet={imageSet(homeGalleryPhotos[4].url)} sizes="100vw" decoding="async" alt={homeGalleryPhotos[4].alt} {...{ fetchpriority: 'high' }} width={1200} height={1600} />}
           <div className="hero-shade" /><div className="hero-copy"><span className="eyebrow white">LOW PROFILE + DREAMS <span className="dash" /> VILA VELHA / ES</span><h1 id="hero-title">Referência de<br />moda no estado <em>ES.</em></h1><p>Há mais de 23 anos conectando marcas e lojistas no Espírito Santo.</p><div className="hero-actions"><a className="hero-button" href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={18} /></a><a className="hero-secondary" href="#galeria">Conheça nosso universo <ArrowDown size={16} /></a></div></div>
           <div className="hero-footnote"><span>MODA, CURADORIA E RELACIONAMENTO</span><a href="#galeria" aria-label="Explorar galeria"><span>EXPLORAR</span><ArrowDown size={15} /></a></div>
         </section>
