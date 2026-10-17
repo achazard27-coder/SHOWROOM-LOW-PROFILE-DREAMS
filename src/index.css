@@ -149,7 +149,8 @@
 .privacy-info { margin-top: 24px; max-width: 65ch; font-size: 13px; line-height: 1.5; }
 .privacy-info summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; }
 .privacy-info p { font-size: 13px; line-height: 1.5; }
-@media (min-width: 640px) { .footer-upper { flex-direction: row; justify-content: space-between; } .footer-links { width: auto; } }
+@media (min-width: 640px) { .footer-upper { flex-direction: row; justify-content: space-between; align-items: flex-start; } .footer-links { width: auto; flex-shrink: 0; } }
+.footer-links a { white-space: nowrap; }
 
 /* Persistent partner action respects the hero, form and safe area. */
 body.has-partner-bar { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
