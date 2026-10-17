@@ -38,6 +38,7 @@ function ExpandedPhoto({ card, index, total, brandName, partnerHref, close, move
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const reduced = useReducedMotion();
+  const touch = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const dialog = ref.current;
@@ -53,8 +54,8 @@ function ExpandedPhoto({ card, index, total, brandName, partnerHref, close, move
     <motion.div className="layout-photo-backdrop" onClick={close} aria-hidden="true" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
     <button autoFocus type="button" className="layout-photo-close" onClick={close} aria-label="Fechar fotografia"><X size={25} /></button>
     <motion.div className="layout-photo-expanded" layoutId={reduced ? undefined : `card-${card.id}`} transition={transition}>
-      <figure>
-        <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} transition={transition} src={card.fullSrc || card.thumbnail} alt={card.alt} className="layout-photo-full" />
+      <figure onTouchStart={event => { const point = event.touches[0]; touch.current = { x: point.clientX, y: point.clientY }; }} onTouchEnd={event => { const start = touch.current; const end = event.changedTouches[0]; touch.current = null; if (start && Math.abs(end.clientX - start.x) > 50 && Math.abs(end.clientX - start.x) > Math.abs(end.clientY - start.y) * 1.2) move(end.clientX < start.x ? 1 : -1); }}>
+        <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} transition={transition} src={card.fullSrc || card.thumbnail} alt={card.alt} width={1200} height={1600} decoding="async" className="layout-photo-full" />
         <motion.figcaption key={card.id} layoutId={reduced ? undefined : `content-${card.id}`} initial={{ opacity: 0, y: reduced ? 0 : 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : .25 }}>
           <div><div className="layout-photo-copy">{card.content}</div><PhotoCredit card={card} /></div>
           <span className="layout-photo-count" aria-live="polite">{index + 1} / {total}</span>
@@ -77,7 +78,7 @@ export function LayoutGrid({ cards, brandName, partnerHref, onOpenChange }: Layo
     <div className="layout-photo-grid">
       {cards.map((card, index) => <motion.div key={card.id} layoutId={reduced ? undefined : `card-${card.id}`} className={cn('layout-photo-card', index % 4 === 0 || index % 4 === 3 ? 'layout-photo-wide' : '', card.className)} style={{ zIndex: lastSelected === index ? 2 : 1 }} transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 30 }}>
         <button className="layout-photo-button" type="button" aria-label={'Ampliar: ' + card.alt} onClick={() => open(index)}>
-          <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} src={card.thumbnail} srcSet={card.srcSet} sizes="(max-width: 760px) 100vw, 65vw" alt={card.alt} loading={index < 2 ? 'eager' : 'lazy'} decoding="async" width={1200} height={1600} />
+          <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} src={card.thumbnail} srcSet={card.srcSet} sizes="(min-width: 1280px) 400px, (min-width: 1024px) 23vw, (min-width: 640px) 30vw, 46vw" alt={card.alt} loading="lazy" decoding="async" width={1200} height={1600} />
           <span className="layout-photo-shade" />
           <motion.span layoutId={reduced ? undefined : `content-${card.id}`} className="layout-photo-label"><span>{card.title || 'Conheça a marca'}</span><ArrowUpRight size={20} aria-hidden="true" /></motion.span>
         </button>

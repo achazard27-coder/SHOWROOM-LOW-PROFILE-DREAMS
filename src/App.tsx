@@ -19,11 +19,11 @@ const aboutParagraphs = [
 
 function BrandLogo({ brand }: { brand: BrandGallery }) {
   const [broken, setBroken] = useState(false);
-  return <>{!broken ? <img src={brand.logo} alt={brand.name} decoding="async" onError={() => setBroken(true)} /> : <span>{brand.name}</span>}{brand.caption && <span className="brand-caption">{brand.caption}</span>}</>;
+  return <>{!broken ? <img src={brand.logo} alt={brand.name} width={320} height={120} loading="lazy" decoding="async" onError={() => setBroken(true)} /> : <span>{brand.name}</span>}{brand.caption && <span className="brand-caption">{brand.caption}</span>}</>;
 }
 function BrandGrid({ onChoose }: { onChoose?: () => void }) {
-  return <div className="brand-grid">{brandGalleries.map((brand, i) => <a href={brandHref(brand)} key={brand.slug} className="brand-tile" onClick={onChoose}>
-    <span className="tile-index">{String(i + 1).padStart(2, '0')}</span><div className="tile-logo"><BrandLogo brand={brand} /></div>
+  return <div className="brand-grid">{brandGalleries.map((brand, i) => <a href={brandHref(brand)} key={brand.slug} className="brand-tile" aria-label={brand.name} onClick={onChoose}>
+    <span className="tile-index">{String(i + 1).padStart(2, '0')}</span><div className="tile-logo" aria-hidden="true"><BrandLogo brand={brand} /></div>
     <span className="tile-link"><span>{brand.name}</span><ArrowUpRight size={18} aria-hidden="true" /></span>
   </a>)}</div>;
 }
@@ -162,7 +162,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
       {page.kind === 'about' && <><AboutSection standalone openBrands={openBrands} /><PartnershipInvite /></>}
       {page.kind === 'partner' && <><section className="section-shell partner-page-intro"><p className="eyebrow">SEJA PARCEIRO</p><h1>Seja um lojista parceiro da Lowprofile & Dreams.</h1>{selectedBrand && <p className="brand-interest">Seu interesse: <strong>{selectedBrand.name}</strong> <a href={brandHref(selectedBrand)}>Voltar à marca <ArrowUpRight size={15} /></a></p>}<p>Preencha o formulário e entre em contato com nossa equipe comercial.</p></section><PartnerForm key={selectedBrand?.slug || 'portfolio'} brandName={selectedBrand?.name} /></>}
       {page.kind === 'brand' && <>
-        <section className="section-shell brand-page-head"><nav className="breadcrumbs" aria-label="Você está aqui"><a href="/">Início</a><span>/</span><a href="/marcas/">Marcas</a><span>/</span><span aria-current="page">{page.brand.name}</span></nav>
+        <section className="section-shell brand-page-head"><a className="text-arrow brand-back" href="/marcas/"><ArrowLeft size={18} /> Todas as marcas</a><nav className="breadcrumbs" aria-label="Você está aqui"><a href="/">Início</a><span>/</span><a href="/marcas/">Marcas</a><span>/</span><span aria-current="page">{page.brand.name}</span></nav>
           <div className="brand-page-heading"><div><p className="eyebrow">GALERIA DA MARCA</p><h1 className="brand-page-logo"><BrandLogo key={page.brand.slug} brand={page.brand} /></h1></div><div className="brand-page-pitch"><p>Conheça {page.brand.name} com a Lowprofile & Dreams.</p><a className="solid-button" href={partnerHref(page.brand)}>Seja parceiro <ArrowUpRight size={18} /></a><button className="text-button" type="button" onClick={openBrands}>Selecionar outra marca <ChevronDown size={16} /></button></div></div>
         </section>
         {page.brand.photos.length > 0 ? <section className="section-shell brand-photo-section" aria-label={'Fotografias de ' + page.brand.name}><LayoutGrid key={page.brand.slug} brandName={page.brand.name} partnerHref={partnerHref(page.brand)} onOpenChange={setGalleryOpen} cards={page.brand.photos.map((item, index) => {
