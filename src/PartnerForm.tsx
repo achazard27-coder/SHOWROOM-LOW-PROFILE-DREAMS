@@ -38,25 +38,24 @@ export default function PartnerForm({ brandName }: { brandName?: string }) {
   const [interest, setInterest] = useState(brandName || 'Conhecer o portfólio');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [formNotice, setFormNotice] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const errorProps = (name: string) => ({ 'aria-invalid': Boolean(errors[name]), 'aria-describedby': errors[name] ? `error-${name}` : undefined });
+  const fieldError = (name: string) => errors[name] ? <span className="field-error" id={`error-${name}`}>{errors[name]}</span> : null;
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status === 'sending' || status === 'success') return;
     const form = e.currentTarget;
     const data = new FormData(form);
-    if (!validCnpj(cnpj)) {
-      setStatus('error');
-      setFormNotice('Confira o CNPJ informado.');
-      return;
-    }
+    const nextErrors: Record<string, string> = {};
+    for (const name of ['cidade', 'loja', 'marcas']) if (!String(data.get(name) || '').trim()) nextErrors[name] = 'Preencha este campo.';
+    if (!validCnpj(cnpj)) nextErrors.cnpj = 'Confira o CNPJ informado.';
     const digits = phone.replace(/\D/g, '');
-    if (digits.length !== 10 && digits.length !== 11) {
-      setStatus('error');
-      setFormNotice('Informe um telefone com DDD válido.');
-      return;
-    }
-    if (!data.get('consentimento')) {
-      setStatus('error');
-      setFormNotice('Precisamos da autorização para entrar em contato.');
+    if (digits.length !== 10 && digits.length !== 11) nextErrors.contato = 'Informe um telefone com DDD válido.';
+    if (!data.get('consentimento')) nextErrors.consentimento = 'Precisamos da autorização para entrar em contato.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) {
+      setStatus('error'); setFormNotice('');
+      (form.elements.namedItem(Object.keys(nextErrors)[0]) as HTMLElement | null)?.focus();
       return;
     }
     setStatus('sending');
@@ -90,25 +89,29 @@ export default function PartnerForm({ brandName }: { brandName?: string }) {
             <p>Cadastre-se e conheça nosso portfólio de marcas, descubra novas oportunidades para sua loja e conte com uma equipe que entende de moda e do mercado capixaba.</p>
             <div className="contact-location"><MapPin size={19} strokeWidth={1.5} /><span>Vila Velha, Espírito Santo</span></div>
           </div>
-          <form className="lead-form" name="lojistas" onSubmit={handleSubmit}>
+          <form className="lead-form" name="lojistas" noValidate onSubmit={handleSubmit}>
             <input type="hidden" name="form-name" value="lojistas"/>
             <label className="honeypot" aria-hidden="true">Não preencher<input name="bot-field" tabIndex={-1} autoComplete="off"/></label>
-            <div className="form-head"><span>CADASTRO DE LOJISTA</span><span>01 / 01</span></div>
             <label> Cidade / UF <span>*</span>
-              <input name="cidade" required maxLength={90} autoComplete="address-level2" placeholder="Ex.: Vitória / ES" />
+              <input name="cidade" {...errorProps('cidade')} required maxLength={90} autoComplete="address-level2" placeholder="Ex.: Vitória / ES" />
+              {fieldError('cidade')}
             </label>
             <label> Nome da loja <span>*</span>
-              <input name="loja" required maxLength={120} autoComplete="organization" placeholder="Nome da sua loja" />
+              <input name="loja" {...errorProps('loja')} required maxLength={120} autoComplete="organization" placeholder="Nome da sua loja" />
+              {fieldError('loja')}
             </label>
             <label> Marcas já trabalhadas <span>*</span>
-              <textarea name="marcas" required maxLength={500} rows={2} placeholder="Quais marcas sua loja trabalha?" />
+              <textarea name="marcas" {...errorProps('marcas')} required maxLength={500} rows={2} placeholder="Quais marcas sua loja trabalha?" />
+              {fieldError('marcas')}
             </label>
             <div className="two-fields">
               <label> CNPJ <span>*</span>
-                <input name="cnpj" inputMode="numeric" autoComplete="off" required value={cnpj} onChange={(e) => setCnpj(formatCnpj(e.target.value))} placeholder="00.000.000/0000-00" />
+                <input name="cnpj" {...errorProps('cnpj')} inputMode="numeric" autoComplete="off" required value={cnpj} onChange={(e) => setCnpj(formatCnpj(e.target.value))} placeholder="00.000.000/0000-00" />
+              {fieldError('cnpj')}
               </label>
               <label> WhatsApp <span>*</span>
-                <input name="contato" inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} placeholder="(27) 99999-9999" />
+                <input type="tel" name="contato" {...errorProps('contato')} inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} placeholder="(27) 99999-9999" />
+              {fieldError('contato')}
               </label>
             </div>
             <label>Marca de interesse
@@ -118,9 +121,10 @@ export default function PartnerForm({ brandName }: { brandName?: string }) {
               </select>
             </label>
             <label className="form-consent">
-              <input type="checkbox" name="consentimento" value="sim" required />
+              <input type="checkbox" name="consentimento" {...errorProps('consentimento')} value="sim" required />
               <span>Autorizo o contato comercial da Low Profile + Dreams usando os dados informados. <a href="#privacidade">Privacidade</a>.</span>
             </label>
+            {fieldError('consentimento')}
             <button type="submit" disabled={status === 'sending' || status === 'success'} className="form-submit">
               {status === 'success' ? 'Cadastro enviado' : status === 'sending' ? 'Enviando...' : 'Enviar cadastro'}
               {status === 'success' ? <Check size={18} /> : <ArrowUpRight size={18} />}
