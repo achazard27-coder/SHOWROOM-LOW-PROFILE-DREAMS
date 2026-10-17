@@ -77,7 +77,7 @@ export function swingStep(a: number, w: number, lineVel: number, dt: number, gai
 
 /** Index of the print nearest the centre for a line offset. */
 export function nearestAt(off: number, spacing: number, n: number): number {
-  return clamp(Math.round(off / spacing), 0, Math.max(0, n - 1))
+  return wrap(Math.round(off / spacing), n)
 }
 
 export function pad2(n: number): string {
@@ -301,11 +301,14 @@ export default function PolaroidLineCarousel({
   }, [])
 
   const spacing = size.cw * 1.12
+  // Repeat enough prints to cover the viewport even when only one or two photos exist.
+  const renderedCount = n ? n * Math.max(1, Math.ceil((size.w / spacing + 4) / n)) : 0
+  const prints = Array.from({ length: renderedCount }, (_, index) => ({ slide: slides[index % n], index }))
   const goTo = React.useCallback(
     (i: number) => {
-      sim.current.target = clamp(i, 0, n - 1) * spacing
+      sim.current.target = i * spacing
     },
-    [n, spacing],
+    [spacing],
   )
 
   React.useEffect(() => {
@@ -358,10 +361,13 @@ export default function PolaroidLineCarousel({
       const o = opts.current
       const g = reduce ? 0 : o.swing
       const near = nearestAt(S.off, spacing, n)
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < renderedCount; i++) {
         const el = cards.current[i]
         if (!el) continue
-        const x = w / 2 + i * spacing - S.off
+        // Each print reappears beyond the opposite edge; the spring itself never rewinds.
+        const cycle = renderedCount * spacing
+        const relative = i * spacing - S.off
+        const x = w / 2 + relative - Math.round(relative / cycle) * cycle
         if (x < -cw * 1.5 || x > w + cw * 1.5) {
           el.style.visibility = "hidden"
           continue
@@ -375,7 +381,7 @@ export default function PolaroidLineCarousel({
         S.w[i] = av
         const y = stringY(x, w, y0, o.sag) - 6
         el.style.transform = "translate(" + (x - cw / 2).toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + a.toFixed(4) + "rad)"
-        el.style.zIndex = String(i === near ? n + 1 : n - Math.abs(i - near))
+        el.style.zIndex = String(renderedCount - Math.round(Math.abs(x - w / 2) / spacing))
       }
       pathRef.current?.setAttribute("d", "M0 " + y0 + " Q" + w / 2 + " " + (y0 + 2 * o.sag) + " " + w + " " + y0)
       if (near !== activeRef.current) {
@@ -398,20 +404,20 @@ export default function PolaroidLineCarousel({
       cancelAnimationFrame(raf)
       io.disconnect()
     }
-  }, [size, spacing, n, reduce])
+  }, [size, spacing, n, renderedCount, reduce])
 
-  // autoplay, back to the first print after the last
+  // Autoplay advances one position across the seam, in either direction.
   React.useEffect(() => {
     if (!autoplay || n < 2 || paused || interacting || reduce) return
     const t = window.setInterval(() => {
       if (!inView.current || document.hidden || drag.current || performance.now() - lastTouch.current < autoplay) return
-      goTo(activeRef.current >= n - 1 ? 0 : activeRef.current + 1)
+      goTo(Math.round(sim.current.target / spacing) + 1)
     }, autoplay)
     return () => window.clearInterval(t)
-  }, [autoplay, n, goTo, paused, interacting, reduce])
+  }, [autoplay, n, goTo, spacing, paused, interacting, reduce])
 
   const onDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest(".pl-bar")) return
+    if (n < 2 || e.button !== 0 || (e.target as HTMLElement).closest(".pl-bar")) return
     lastTouch.current = performance.now()
     drag.current = { x: e.clientX, off: sim.current.off, lx: e.clientX, lt: e.timeStamp, v: 0, moved: false }
   }
@@ -429,11 +435,7 @@ export default function PolaroidLineCarousel({
     d.v = 0.7 * ((e.clientX - d.lx) / dt) + 0.3 * d.v
     d.lx = e.clientX
     d.lt = e.timeStamp
-    const max = (n - 1) * spacing
-    let off = d.off - dx
-    if (off < 0) off *= 0.35
-    if (off > max) off = max + (off - max) * 0.35
-    sim.current.off = off
+    sim.current.off = d.off - dx
   }
   const onUp = (e: React.PointerEvent) => {
     const d = drag.current
@@ -443,15 +445,18 @@ export default function PolaroidLineCarousel({
     if (d.moved) {
       setDragging(false)
       sim.current.vel = -d.v * 1000
-      goTo(nearestAt(sim.current.off - d.v * 180, spacing, n))
+      goTo(Math.round((sim.current.off - d.v * 180) / spacing))
       return
     }
     const card = (e.target as HTMLElement).closest("[data-i]")
-    if (card) goTo(Number(card.getAttribute("data-i")))
+    if (card) {
+      const index = Number(card.getAttribute("data-i"))
+      goTo(index + Math.round((sim.current.off / spacing - index) / renderedCount) * renderedCount)
+    }
   }
   const step = (dir: number) => {
     lastTouch.current = performance.now()
-    goTo(clamp(activeRef.current + dir, 0, n - 1))
+    if (n > 1) goTo(Math.round(sim.current.target / spacing) + dir)
   }
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight") step(1)
@@ -484,7 +489,7 @@ export default function PolaroidLineCarousel({
       onPointerDown={onDown}
       onPointerMove={onMove}
       onPointerUp={onUp}
-      onPointerCancel={() => { drag.current = null; setDragging(false); goTo(activeRef.current) }}
+      onPointerCancel={() => { drag.current = null; setDragging(false); goTo(Math.round(sim.current.off / spacing)) }}
       onMouseEnter={() => setInteracting(true)}
       onMouseLeave={() => setInteracting(false)}
       onFocusCapture={() => setInteracting(true)}
@@ -494,10 +499,10 @@ export default function PolaroidLineCarousel({
       <svg className="pl-string" aria-hidden="true">
         <path ref={pathRef} fill="none" stroke={string} strokeWidth="1.5" strokeLinecap="round" />
       </svg>
-      {slides.map((sl, i) => (
-        <div key={i} className="pl-card" data-i={i} data-on={i === active ? "1" : "0"} ref={(el) => void (cards.current[i] = el)} aria-hidden={i === active ? undefined : true}>
+      {prints.map(({ slide: sl, index: i }) => (
+        <div key={i} className="pl-card" data-i={i} data-on={i % n === active ? "1" : "0"} ref={(el) => void (cards.current[i] = el)} aria-hidden="true">
           <div className="pl-print">
-            <div className="pl-shot">{srcs[i] ? <img src={srcs[i]} alt={sl.alt || sl.title || ""} draggable={false} loading={i < 2 ? "eager" : "lazy"} decoding="async" width={900} height={1200} /> : null}</div>
+            <div className="pl-shot">{srcs[i % n] ? <img src={srcs[i % n]} alt={sl.alt || sl.title || ""} draggable={false} loading={i < 2 ? "eager" : "lazy"} decoding="async" width={900} height={1200} /> : null}</div>
             <div className="pl-note">{sl.title || ""}</div>
           </div>
           <div className="pl-peg" />
@@ -512,19 +517,19 @@ export default function PolaroidLineCarousel({
         <span className="pl-count" aria-hidden="true">
           <b>{pad2(active + 1)}</b> / {pad2(n)}
         </span>
-        <button type="button" className="pl-btn" aria-label="Foto anterior" disabled={active === 0} onClick={() => step(-1)}>
+        <button type="button" className="pl-btn" aria-label="Foto anterior" disabled={n < 2} onClick={() => step(-1)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3 5 8l5 5" stroke="currentColor" strokeWidth="1.4" />
           </svg>
         </button>
-        <button type="button" className="pl-btn" aria-label="Próxima foto" disabled={active === n - 1} onClick={() => step(1)}>
+        <button type="button" className="pl-btn" aria-label="Próxima foto" disabled={n < 2} onClick={() => step(1)}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="m6 3 5 5-5 5" stroke="currentColor" strokeWidth="1.4" />
           </svg>
         </button>
       </div>
       <div className="pl-sr" aria-live={paused || interacting || !autoplay ? "polite" : "off"}>
-        {"Foto " + (active + 1) + " de " + n + (s.title ? ": " + s.title : "")}
+        {"Foto " + (active + 1) + " de " + n + (s.alt ? ": " + s.alt : s.title ? ": " + s.title : "")}
       </div>
     </div>
   )

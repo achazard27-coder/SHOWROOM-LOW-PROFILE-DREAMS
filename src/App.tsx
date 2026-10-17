@@ -1,338 +1,181 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Check, Mail, MapPin, Menu, X } from 'lucide-react';
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Mail, Menu, X } from 'lucide-react';
 import PolaroidLineCarousel from '@/components/ui/polaroid-line-carousel';
-import { showroomSlides } from './data/showroom';
-import { InfiniteSlider } from '@/components/ui/infinite-slider';
-import { brands, type Brand } from './data/brands';
-import { spaces, realPhotos, galleryUsesRealPhotos, imageUrl, imageSet, type SpaceId } from './data/gallery';
+import { brandGalleries, homeGalleryPhotos, type BrandGallery } from './data/brand-gallery';
+import { imageUrl, imageSet } from './data/gallery';
+import PartnerForm from './PartnerForm';
+import { getPageMeta, resolvePage } from './routing';
 
-function formatCnpj(input: string) {
-  const n = input.replace(/\D/g, '').slice(0, 14);
-  return n.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-    .replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
-}
+const brandHref = (brand: BrandGallery) => `/marcas/${brand.slug}/`;
+const partnerHref = (brand?: BrandGallery) => '/seja-parceiro/' + (brand ? '?marca=' + encodeURIComponent(brand.slug) : '');
+const aboutParagraphs = [
+  'A Lowprofile & Dreams é referência em representação comercial de moda no Espírito Santo. Há mais de 23 anos, conectamos marcas de destaque nacional e internacional a lojistas multimarcas que buscam qualidade, estilo, diferenciação e novas oportunidades de negócio.',
+  'Representamos um portfólio de 12 marcas de peso, com nomes ligados a grandes grupos da moda brasileira, como Grupo Soma, Grupo Dass e Grupo Grendene, além de marcas que são referência em seus segmentos.',
+  'Com mais de 400 lojistas atendidos, construímos uma trajetória pautada pela credibilidade, pelo relacionamento e pelo conhecimento do mercado.',
+  'Nosso portfólio reúne moda casual adulta e infantil, com opções nacionais e internacionais para diferentes perfis de público e posicionamentos de loja.',
+  'Mais do que apresentar coleções, oferecemos uma curadoria de marcas pensada para conectar o seu negócio às tendências do mercado e às oportunidades do varejo de moda.',
+];
 
-function validCnpj(input: string) {
-  const v = input.replace(/\D/g, '');
-  if (v.length !== 14 || /^(\d)\1{13}$/.test(v)) return false;
-  const calc = (length: number) => {
-    let pos = length - 7, sum = 0;
-    for (let i = length; i >= 1; i--) {
-      sum += Number(v[length - i]) * pos--;
-      if (pos < 2) pos = 9;
-    }
-    const remainder = sum % 11;
-    return remainder < 2 ? 0 : 11 - remainder;
-  };
-  return calc(12) === Number(v[12]) && calc(13) === Number(v[13]);
-}
-
-function formatPhone(input: string) {
-  const n = input.replace(/\D/g, '').slice(0, 11);
-  if (n.length <= 2) return n ? '(' + n : '';
-  if (n.length <= 6) return '(' + n.slice(0, 2) + ') ' + n.slice(2);
-  const split = n.length === 11 ? 7 : 6;
-  return '(' + n.slice(0, 2) + ') ' + n.slice(2, split) + '-' + n.slice(split);
-}
-
-function BrandCard({ brand }: { brand: Brand }) {
+function BrandLogo({ brand }: { brand: BrandGallery }) {
   const [broken, setBroken] = useState(false);
-  const src = brand.logo || '';
-
-  return (
-    <div className="brand-card" aria-label={brand.name}>
-      {src && !broken && <img className="brand-logo-vector" src={src} alt={brand.logo ? brand.name : ''} decoding="async" onError={() => setBroken(true)} />}
-      {brand.caption && !broken && <span className="brand-caption">{brand.caption}</span>}
-      {(!brand.logo || broken) && <span className={brand.small ? 'brand-name small' : 'brand-name'}>{brand.name}</span>}
-    </div>
-  );
+  return <>{!broken ? <img src={brand.logo} alt={brand.name} decoding="async" onError={() => setBroken(true)} /> : <span>{brand.name}</span>}{brand.caption && <span className="brand-caption">{brand.caption}</span>}</>;
 }
-
-function App() {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const [formVisible, setFormVisible] = useState(false);
-  const [activeSpace, setActiveSpace] = useState<SpaceId>('dreams');
-  const [activePhoto, setActivePhoto] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [cnpj, setCnpj] = useState('');
-  const [phone, setPhone] = useState('');
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [formNotice, setFormNotice] = useState('');
-
-  const currentSpace = spaces.find((s) => s.id === activeSpace) ?? spaces[0];
-  const photos = currentSpace.photos;
-  const currentImage = photos[activePhoto] ?? photos[0];
-  const illustrative = realPhotos[activeSpace].length === 0;
-
-  function setSpace(id: SpaceId) {
-    setActiveSpace(id);
-    setActivePhoto(0);
-  }
-
-  function movePhoto(offset: number) {
-    setActivePhoto((p) => (p + offset + photos.length) % photos.length);
-  }
-
+function BrandGrid({ onChoose }: { onChoose?: () => void }) {
+  return <div className="brand-grid">{brandGalleries.map((brand, i) => <a href={brandHref(brand)} key={brand.slug} className="brand-tile" onClick={onChoose}>
+    <span className="tile-index">{String(i + 1).padStart(2, '0')}</span><div className="tile-logo"><BrandLogo brand={brand} /></div>
+    <span className="tile-link"><span>{brand.name}</span><ArrowUpRight size={18} aria-hidden="true" /></span>
+  </a>)}</div>;
+}
+function Modal({ label, onClose, children, className = '', onKeyDown }: { label: string; onClose: () => void; children: ReactNode; className?: string; onKeyDown?: (event: ReactKeyboardEvent<HTMLDialogElement>) => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    const form = document.getElementById('contato');
-    if (!form) return;
-    const observer = new IntersectionObserver(([entry]) => setFormVisible(entry.isIntersecting), {threshold: 0.08});
-    observer.observe(form);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!modalOpen) return;
-    const dialog = dialogRef.current;
     const previous = document.activeElement as HTMLElement | null;
+    const dialog = ref.current;
     dialog?.showModal();
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { dialog?.close(); document.body.style.overflow = overflow; previous?.focus(); };
-  }, [modalOpen]);
+    return () => { dialog?.close(); document.body.style.overflow = overflow; if (previous?.isConnected) previous.focus(); };
+  }, []);
+  return <dialog ref={ref} className={'site-dialog ' + className} aria-label={label} onKeyDown={onKeyDown} onCancel={onClose} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
+    <button className="dialog-close" type="button" autoFocus onClick={onClose} aria-label="Fechar"><X size={24} /></button>{children}
+  </dialog>;
+}
+function AboutSection({ standalone = false, openBrands }: { standalone?: boolean; openBrands: () => void }) {
+  const Heading = standalone ? 'h1' : 'h2';
+  return <section className={'about-section section-shell' + (standalone ? ' standalone' : '')} id="sobre-nos" aria-labelledby="about-title">
+    <div className="about-intro"><p className="eyebrow">SOBRE NÓS / LOWPROFILE & DREAMS</p><Heading id="about-title">Mais de 23 anos conectando grandes marcas aos melhores lojistas do Espírito Santo.</Heading></div>
+    <div className="about-body"><h3>Sua próxima grande marca começa aqui.</h3>{aboutParagraphs.map(text => <p key={text}>{text}</p>)}
+      <p className="about-closing">Sua loja merece marcas que agregam valor. Nós ajudamos você a encontrá-las.</p>
+      <button type="button" className="solid-button" onClick={openBrands}>QUERO CONHECER AS MARCAS <ArrowUpRight size={18} /></button>
+    </div>
+    <div className="about-numbers" aria-label="Nossa trajetória"><div><strong>23<span>+</span></strong><span>anos de história</span></div><div><strong>12</strong><span>marcas no portfólio</span></div><div><strong>400<span>+</span></strong><span>lojistas atendidos</span></div></div>
+  </section>;
+}
+function PartnershipInvite() {
+  return <section className="invite-section"><p className="eyebrow white">NOVAS CONEXÕES. NOVAS POSSIBILIDADES.</p><h2>Seja um lojista parceiro da Lowprofile & Dreams.</h2><p>Preencha o formulário e entre em contato com nossa equipe comercial.</p><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={20} /></a></section>;
+}
+
+export default function App({ initialPath = '/' }: { initialPath?: string }) {
+  const [location, setLocation] = useState(() => typeof window === 'undefined' ? initialPath : window.location.pathname);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [brandsOpen, setBrandsOpen] = useState(false);
+  const [selectorOpen, setSelectorOpen] = useState(false);
+  const [activePhoto, setActivePhoto] = useState<number | null>(null);
+  const [formVisible, setFormVisible] = useState(false);
+  const menuRef = useRef<HTMLElement>(null);
+  const brandsButtonRef = useRef<HTMLButtonElement>(null);
+  const firstRoute = useRef(true);
+  const page = resolvePage(location);
+  const currentBrand = page.kind === 'brand' ? page.brand : undefined;
+  const selectedBrand = page.kind === 'partner' ? brandGalleries.find(brand => brand.slug === new URLSearchParams(location.split('?')[1] || '').get('marca')) : currentBrand;
+  const meta = getPageMeta(location);
+  const photo = currentBrand && activePhoto !== null ? currentBrand.photos[activePhoto] : undefined;
 
   useEffect(() => {
-    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
-    document.addEventListener('keydown', close);
-    return () => document.removeEventListener('keydown', close);
+    // Query-string context is applied after hydration of the static route.
+    setLocation(window.location.pathname + window.location.search);
+    const onPopState = () => setLocation(window.location.pathname + window.location.search);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (status === 'sending' || status === 'success') return;
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    if (!validCnpj(cnpj)) {
-      setStatus('error');
-      setFormNotice('Confira o CNPJ informado.');
+  useEffect(() => {
+    setMenuOpen(false); setBrandsOpen(false); setSelectorOpen(false); setActivePhoto(null);
+    document.title = meta.title;
+    const description = document.querySelector('meta[name="description"]');
+    description?.setAttribute('content', meta.description);
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.append(canonical); }
+    canonical.href = meta.canonical;
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!robots) { robots = document.createElement('meta'); robots.name = 'robots'; document.head.append(robots); }
+    robots.content = meta.noindex ? 'noindex, follow' : 'index, follow';
+    for (const [property, content] of [['og:title', meta.title], ['og:description', meta.description], ['og:url', meta.canonical]]) document.querySelector(`meta[property="${property}"]`)?.setAttribute('content', content);
+    if (firstRoute.current) { firstRoute.current = false; return; }
+    const target = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+    if (target) target.scrollIntoView();
+    else window.scrollTo({ top: 0, behavior: 'instant' });
+    document.getElementById('main')?.focus({ preventScroll: true });
+  }, [location, meta.title, meta.description, meta.canonical, meta.noindex]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { setMenuOpen(false); if (brandsOpen) { setBrandsOpen(false); brandsButtonRef.current?.focus(); } } };
+    const outside = (event: PointerEvent) => { if (!menuRef.current?.contains(event.target as Node)) { setBrandsOpen(false); setMenuOpen(false); } };
+    document.addEventListener('keydown', onKey); document.addEventListener('pointerdown', outside);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', outside); };
+  }, [brandsOpen]);
+  useEffect(() => {
+    setFormVisible(false);
+    const form = document.getElementById('contato');
+    if (!form) return;
+    const observer = new IntersectionObserver(([entry]) => setFormVisible(entry.isIntersecting), { threshold: 0.08 });
+    observer.observe(form);
+    return () => observer.disconnect();
+  }, [location]);
+  function navigate(event: MouseEvent<HTMLDivElement>) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href]');
+    if (!anchor || anchor.target || anchor.hasAttribute('download')) return;
+    const url = new URL(anchor.href, window.location.href);
+    if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return;
+    if (url.pathname === window.location.pathname && url.search === window.location.search) {
+      setMenuOpen(false); setBrandsOpen(false); setSelectorOpen(false);
+      if (!url.hash) { event.preventDefault(); window.scrollTo({ top: 0, behavior: 'instant' }); }
       return;
     }
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length !== 10 && digits.length !== 11) {
-      setStatus('error');
-      setFormNotice('Informe um telefone com DDD válido.');
-      return;
-    }
-    if (!data.get('consentimento')) {
-      setStatus('error');
-      setFormNotice('Precisamos da autorização para entrar em contato.');
-      return;
-    }
-    setStatus('sending');
-    setFormNotice('Enviando cadastro...');
-    try {
-      const body = new URLSearchParams();
-      body.set('form-name', 'lojistas');
-      for (const [key, value] of data.entries()) body.set(key, String(value));
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString()
-      });
-      if (!response.ok) throw new Error('Erro de recebimento');
-      setStatus('success');
-      setFormNotice('Cadastro enviado. Nossa equipe entrará em contato.');
-      form.reset();
-      setCnpj('');
-      setPhone('');
-    } catch {
-      setStatus('error');
-      setFormNotice('Não foi possível enviar. Tente novamente ou escreva para low.dreams@hotmail.com.');
-    }
+    event.preventDefault(); window.history.pushState({}, '', url.pathname + url.search + url.hash); setLocation(url.pathname + url.search);
   }
+  const openBrands = () => { setBrandsOpen(false); setMenuOpen(false); setSelectorOpen(true); };
+  const movePhoto = (offset: number) => { if (currentBrand) setActivePhoto(index => ((index || 0) + offset + currentBrand.photos.length) % currentBrand.photos.length); };
 
-  return (
-    <>
-      <a className="skip-link" href="#main">Pular para o conteúdo</a>
-      <header className="site-header">
-        <div className="header-shell">
-          <a href="#inicio" aria-label="Low Profile + Dreams - início" className="logo-lockup" onClick={() => setMenuOpen(false)}>
-            <img src="/logo-lp.png" alt="LOW PROFILE + DREAMS" />
-          </a>
-          <nav className="desktop-links" aria-label="Navegação principal">
-            <a href="#espacos">Espaços</a>
-            <a href="#marcas">Marcas</a>
-            <a href="#sobre">O showroom</a>
-          </nav>
-          <a className="header-contact" href="#contato">Seja um parceiro <ArrowUpRight size={15} strokeWidth={1.65} /></a>
-          <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen}>
-            {menuOpen ? <X size={25} /> : <Menu size={25} />}
-          </button>
-        </div>
-        {menuOpen && <nav className="mobile-links" aria-label="Navegação mobile">
-          {[['Espaços', '#espacos'], ['Marcas', '#marcas'], ['O showroom', '#sobre'], ['Seja um parceiro', '#contato']].map(([name, href]) =>
-            <a key={href} href={href} onClick={() => setMenuOpen(false)}>{name}<ArrowUpRight size={18} /></a>
-          )}
-        </nav>}
-      </header>
+  return <div onClick={navigate}>
+    <a className="skip-link" href="#main">Pular para o conteúdo</a>
+    <header ref={menuRef} className="site-header">
+      <div className="header-shell">
+        <a href="/" className="logo-lockup" aria-label="Lowprofile & Dreams — início"><img src="/logo-lp.png" alt="LOW PROFILE + DREAMS" width={556} height={100} /></a>
+        <nav className="desktop-links" aria-label="Navegação principal">
+          <button ref={brandsButtonRef} type="button" className={'nav-brands' + (brandsOpen ? ' is-open' : '')} aria-expanded={brandsOpen} aria-controls="brand-mega-menu" onClick={() => setBrandsOpen(!brandsOpen)}>Marcas <ChevronDown size={14} /></button>
+          <a href="/sobre-nos/" aria-current={page.kind === 'about' ? 'page' : undefined}>Sobre nós</a>
+        </nav>
+        <a className="header-contact" href={partnerHref(currentBrand)}>Seja parceiro <ArrowUpRight size={16} /></a>
+        <button type="button" className="menu-toggle" onClick={() => { setMenuOpen(!menuOpen); setBrandsOpen(false); }} aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen} aria-controls="mobile-menu">{menuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+      </div>
+      {brandsOpen && <div id="brand-mega-menu" className="brand-mega-menu"><div className="mega-intro"><p className="eyebrow">NOSSO PORTFÓLIO</p><h2>Uma marca.<br />Novas possibilidades.</h2><a className="text-arrow" href="/marcas/">Explore todas as marcas <ArrowUpRight size={17} /></a></div><nav className="mega-brands" aria-label="Escolha uma marca">{brandGalleries.map((brand, i) => <a href={brandHref(brand)} key={brand.slug}><span className="mega-number">{String(i + 1).padStart(2, '0')}</span>{brand.name}<ArrowUpRight size={16} /></a>)}</nav></div>}
+      {menuOpen && <nav id="mobile-menu" className="mobile-links" aria-label="Navegação mobile"><a href="/marcas/">Marcas <ArrowUpRight size={18} /></a><div className="mobile-brand-list">{brandGalleries.map(brand => <a href={brandHref(brand)} key={brand.slug}>{brand.name}</a>)}</div><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={18} /></a><a href={partnerHref(currentBrand)}>Seja parceiro <ArrowUpRight size={18} /></a></nav>}
+    </header>
 
-      <main id="main">
-        <section id="inicio" className="hero">
-          <img className="hero-photo" src={imageUrl(spaces[0].photos[0].url, 1600)} srcSet={imageSet(spaces[0].photos[0].url)} sizes="100vw" alt={spaces[0].photos[0].alt} fetchPriority="high" width={1200} height={1600} />
-          <div className="hero-shade" />
-          <div className="hero-copy">
-            <span className="eyebrow white">LOW PROFILE + DREAMS <span className="dash" /> VILA VELHA / ES</span>
-            <h1>Referência de<br />moda no estado <em>ES.</em></h1>
-            <p>Uma vitrine de marcas, espaços e conexões para lojistas.</p>
-            <div className="hero-actions"><a className="hero-button" href="#contato">Agende sua visita <ArrowUpRight size={18} /></a><a className="hero-secondary" href="#espacos">Explore os espaços <ArrowDown size={16}/></a></div>
-          </div>
-          <div className="hero-footnote">
-            <span>{galleryUsesRealPhotos ? 'LOW PROFILE + DREAMS / GALERIA' : 'WIREFRAME · FOTOS ILUSTRATIVAS'}</span>
-            <a href="#espacos" aria-label="Explorar os espaços"><span>EXPLORAR</span><ArrowDown size={15} /></a>
-          </div>
+    <main id="main" tabIndex={-1}>
+      {page.kind === 'home' && <>
+        <section className="hero" aria-labelledby="hero-title">
+          {homeGalleryPhotos[4] && <img className="hero-photo" src={imageUrl(homeGalleryPhotos[4].url, 1600)} srcSet={imageSet(homeGalleryPhotos[4].url)} sizes="100vw" alt={homeGalleryPhotos[4].alt} {...{ fetchpriority: 'high' }} width={1200} height={1600} />}
+          <div className="hero-shade" /><div className="hero-copy"><span className="eyebrow white">LOW PROFILE + DREAMS <span className="dash" /> VILA VELHA / ES</span><h1 id="hero-title">Referência de<br />moda no estado <em>ES.</em></h1><p>Há mais de 23 anos conectando marcas e lojistas no Espírito Santo.</p><div className="hero-actions"><a className="hero-button" href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={18} /></a><a className="hero-secondary" href="#galeria">Conheça nosso universo <ArrowDown size={16} /></a></div></div>
+          <div className="hero-footnote"><span>MODA, CURADORIA E RELACIONAMENTO</span><a href="#galeria" aria-label="Explorar galeria"><span>EXPLORAR</span><ArrowDown size={15} /></a></div>
         </section>
-
-        <section id="espacos" className="section-shell spaces-section">
-          <div className="section-head">
-            <p className="eyebrow">01 / GALERIA</p>
-            <div className="section-heading-row">
-              <h2>Nossos espaços<span className="period">.</span></h2>
-              <p>Explore os ambientes onde as marcas encontram novos parceiros.</p>
-            </div>
-          </div>
-
-          <div className="space-tabs" role="group" aria-label="Escolha um espaço">
-            {spaces.map((space, index) =>
-              <button key={space.id} type="button" aria-pressed={activeSpace === space.id} onClick={() => setSpace(space.id)} className={'space-tab ' + (activeSpace === space.id ? 'selected' : '')}>
-                <span className="tab-number">{String(index + 1).padStart(2, '0')}</span> {space.title}
-                <ArrowUpRight size={16} />
-              </button>
-            )}
-          </div>
-
-          <div className="gallery-photos">
-            <button type="button" className="gallery-main" onClick={() => { setActivePhoto(0); setModalOpen(true); }} aria-label={'Ampliar imagem principal de ' + currentSpace.title}>
-              <img src={imageUrl(photos[0].url, 1200)} srcSet={imageSet(photos[0].url)} sizes="(max-width:760px) 100vw, 62vw" alt={photos[0].alt} loading="lazy" decoding="async" width={1200} height={1600} />
-              <span className="photo-label">{currentSpace.title} <ArrowUpRight size={18} /></span>
-            </button>
-            <div className="gallery-side">
-              {photos.slice(1, 3).map((photo, i) =>
-                <button type="button" className="gallery-secondary" key={photo.url + i} onClick={() => { setActivePhoto(i + 1); setModalOpen(true); }} aria-label={'Ampliar imagem ' + (i + 2)}>
-                  <img src={imageUrl(photo.url, 800)} srcSet={imageSet(photo.url)} sizes="(max-width:760px) 46vw, 30vw" alt={photo.alt} loading="lazy" decoding="async" width={1200} height={1600} />
-                  <span className="image-number">0{i + 2} / {String(photos.length).padStart(2, '0')}</span>
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="gallery-bottom">
-            <span>{currentSpace.kicker} / {currentSpace.title}</span>
-            <span>{illustrative ? 'IMAGENS DE BANCO — NÃO RETRATAM O SHOWROOM REAL' : 'FOTOGRAFIAS DO SHOWROOM'}</span>
-            <button type="button" onClick={() => { setActivePhoto(0); setModalOpen(true); }}>Ver galeria completa <ArrowUpRight size={17} /></button>
-          </div>
-          <a href="#contato" className="gallery-cta">Gostou dos espaços? Agende sua visita <ArrowUpRight size={18}/></a>
+        <section className="showroom-section" id="galeria" aria-labelledby="gallery-title">
+          <div className="section-shell showroom-heading"><div><p className="eyebrow">01 / NOSSO UNIVERSO</p><h2 id="gallery-title">Um encontro<br /><em>com a sua próxima marca.</em></h2></div><div className="showroom-pitch"><p>Um olhar por dentro da Lowprofile & Dreams. Conheça as marcas e descubra novas possibilidades para a sua loja.</p><span>Arraste as fotos ou use as setas para explorar.</span></div></div>
+          <nav className="section-shell gallery-category-nav" aria-label="Explore a Lowprofile & Dreams"><button type="button" onClick={openBrands}><span>01</span> Marcas <ChevronDown size={17} /></button><a href="/sobre-nos/"><span>02</span> Sobre nós <ArrowUpRight size={17} /></a><a href="/seja-parceiro/"><span>03</span> Seja parceiro <ArrowUpRight size={17} /></a></nav>
+          <PolaroidLineCarousel slides={homeGalleryPhotos.map(item => ({ image: imageUrl(item.url, 800), title: item.label, alt: item.alt }))} height="clamp(510px, 72svh, 650px)" cardWidth={300} sag={28} swing={0.4} autoplay={0} background="#eae7df" ink="#252521" ariaLabel="Fotografias do showroom — carrossel infinito" />
+          <div className="section-shell gallery-selector-action"><button className="solid-button" type="button" onClick={openBrands}>Veja a galeria completa <ArrowUpRight size={18} /></button><p>Escolha uma marca para explorar sua galeria.</p></div>
         </section>
-
-        <section id="sobre" className="showroom-section" aria-labelledby="showroom-title">
-          <div className="section-shell showroom-heading">
-            <div><p className="eyebrow">02 / SHOWROOM</p>
-              <h2 id="showroom-title">Sua próxima coleção<br/><em>começa aqui.</em></h2>
-            </div>
-            <div className="showroom-pitch"><p>Veja os detalhes. Conheça as marcas. Escolha de perto o que faz sentido para sua loja.</p>
-              <a href="#contato" className="showroom-primary">Agendar uma visita <ArrowUpRight size={18}/></a>
-              <span>Atendimento a lojistas · Vila Velha / ES</span>
-            </div>
-          </div>
-          <PolaroidLineCarousel slides={showroomSlides} height="clamp(560px, 76svh, 700px)" cardWidth={300} sag={28} swing={0.4} autoplay={0} background="#eae7df" ink="#252521" ariaLabel="Conheça o showroom em oito fotos reais"/>
-          <div className="section-shell showroom-bottom"><p>Arraste as fotos ou use as setas para explorar.</p><a href="#contato" className="text-arrow">Quero conhecer o showroom <ArrowUpRight size={18}/></a></div>
+        <section className="brands-section section-shell"><div className="section-head"><p className="eyebrow">02 / NOSSAS MARCAS</p><div className="section-heading-row"><h2>Identidades que<br />se conectam<span className="period">.</span></h2><p>Um portfólio de 12 marcas. Encontre as que fazem sentido para sua loja.</p></div></div><BrandGrid /></section>
+        <AboutSection openBrands={openBrands} /><PartnershipInvite /><PartnerForm />
+      </>}
+      {page.kind === 'brands' && <section className="section-shell brands-page"><p className="eyebrow">PORTFÓLIO / 12 MARCAS</p><h1>Nossas marcas<span className="period">.</span></h1><p className="page-lead">Conheça cada marca de perto. Escolha uma para explorar a galeria e conversar com nossa equipe.</p><BrandGrid /><div className="page-bottom-link"><a href="/"> <ArrowLeft size={16} /> Voltar ao início</a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={16} /></a></div></section>}
+      {page.kind === 'about' && <><AboutSection standalone openBrands={openBrands} /><PartnershipInvite /></>}
+      {page.kind === 'partner' && <><section className="section-shell partner-page-intro"><p className="eyebrow">SEJA PARCEIRO</p><h1>Seja um lojista parceiro da Lowprofile & Dreams.</h1>{selectedBrand && <p className="brand-interest">Seu interesse: <strong>{selectedBrand.name}</strong> <a href={brandHref(selectedBrand)}>Voltar à marca <ArrowUpRight size={15} /></a></p>}<p>Preencha o formulário e entre em contato com nossa equipe comercial.</p></section><PartnerForm key={selectedBrand?.slug || 'portfolio'} brandName={selectedBrand?.name} /></>}
+      {page.kind === 'brand' && <>
+        <section className="section-shell brand-page-head"><nav className="breadcrumbs" aria-label="Você está aqui"><a href="/">Início</a><span>/</span><a href="/marcas/">Marcas</a><span>/</span><span aria-current="page">{page.brand.name}</span></nav>
+          <div className="brand-page-heading"><div><p className="eyebrow">GALERIA DA MARCA</p><h1 className="brand-page-logo"><BrandLogo key={page.brand.slug} brand={page.brand} /></h1></div><div className="brand-page-pitch"><p>Conheça {page.brand.name} com a Lowprofile & Dreams.</p><a className="solid-button" href={partnerHref(page.brand)}>Seja parceiro <ArrowUpRight size={18} /></a><button className="text-button" type="button" onClick={openBrands}>Selecionar outra marca <ChevronDown size={16} /></button></div></div>
         </section>
+        {page.brand.photos.length > 0 ? <section className="section-shell brand-photo-section" aria-label={'Fotografias de ' + page.brand.name}><div className="brand-photo-grid">{page.brand.photos.map((item, index) => <button type="button" className="brand-photo" key={item.url + index} aria-label={'Ampliar: ' + item.alt} onClick={() => setActivePhoto(index)}><img src={imageUrl(item.url, 1200)} srcSet={imageSet(item.url)} sizes="(max-width: 760px) 100vw, 50vw" alt={item.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" width={1200} height={1600} /><span>{String(index + 1).padStart(2, '0')} <ArrowUpRight size={18} /></span></button>)}</div><p className="photo-help">Toque em uma foto para ampliar.</p></section> : <section className="section-shell"><div className="empty-brand-gallery"><p className="eyebrow">EM BREVE</p><h2>As imagens desta marca serão disponibilizadas em breve.</h2><p>Nossa equipe pode apresentar as coleções e as oportunidades de {page.brand.name} para sua loja.</p><a className="solid-button" href={partnerHref(page.brand)}>Conhecer as coleções <ArrowUpRight size={18} /></a></div></section>}
+        <div className="section-shell brand-page-bottom"><a className="text-arrow" href="/marcas/"><ArrowLeft size={18} /> Todas as marcas</a><button className="text-button" type="button" onClick={openBrands}>Selecionar outra marca <ArrowUpRight size={18} /></button></div>
+        <section className="brand-partner-band section-shell"><div><p className="eyebrow">PARA SUA LOJA</p><h2>Uma nova conexão<br />começa aqui.</h2></div><a className="solid-button" href={partnerHref(page.brand)}>Seja parceiro de {page.brand.name} <ArrowUpRight size={18} /></a></section>
+      </>}
+      {page.kind === 'notfound' && <section className="section-shell not-found"><p className="eyebrow">404 / PÁGINA NÃO ENCONTRADA</p><h1>Vamos encontrar<br />um novo caminho.</h1><p>Esta página não está disponível. Explore nosso portfólio para encontrar a marca que procura.</p><a className="solid-button" href="/marcas/">Conheça nossas marcas <ArrowUpRight size={18} /></a><a className="text-button" href="/"> <ArrowLeft size={16} /> Voltar ao início</a></section>}
+    </main>
 
-        <section id="marcas" className="brands-section">
-          <div className="section-shell brands-inner">
-            <div className="section-head brands-head">
-              <p className="eyebrow">03 / CURADORIA</p>
-              <div className="section-heading-row">
-                <h2>Nossas marcas<span className="period">.</span></h2>
-                <p>Uma seleção de marcas com diferentes estilos e identidades.</p>
-              </div>
-            </div>
-          </div>
-          <InfiniteSlider gap={32} className="brand-marquee">
-            {brands.map((brand) => <BrandCard key={brand.name} brand={brand} />)}
-          </InfiniteSlider>
-          <div className="section-shell brands-bottom">
-            <span>PORTFÓLIO SUJEITO À DISPONIBILIDADE COMERCIAL</span>
-            <a href="#contato">Quero conhecer as marcas <ArrowUpRight size={17} /></a>
-          </div>
-        </section>
+    <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /></a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
+    <a className={'partner-sticky' + (formVisible || selectorOpen || activePhoto !== null || menuOpen ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
 
-        <section className="invite-section">
-          <p className="eyebrow white">LOW PROFILE + DREAMS</p>
-          <h2>Seu próximo encontro<br />com a moda começa aqui.</h2>
-          <a href="#contato">Seja um parceiro <ArrowUpRight size={20} /></a>
-        </section>
-
-        <section id="contato" className="section-shell contact-section">
-          <div className="contact-info">
-            <p className="eyebrow">04 / NOVOS PARCEIROS</p>
-            <h2>Vamos conversar<span className="period">.</span></h2>
-            <p>Preencha seus dados. Nossa equipe entrará em contato com sua loja.</p>
-            <div className="contact-location"><MapPin size={19} strokeWidth={1.5} /><span>Vila Velha, Espírito Santo</span></div>
-          </div>
-          <form className="lead-form" name="lojistas" onSubmit={handleSubmit}>
-            <input type="hidden" name="form-name" value="lojistas"/>
-            <label className="honeypot" aria-hidden="true">Não preencher<input name="bot-field" tabIndex={-1} autoComplete="off"/></label>
-            <div className="form-head"><span>CADASTRO DE LOJISTA</span><span>01 / 01</span></div>
-            <label> Cidade / UF <span>*</span>
-              <input name="cidade" required maxLength={90} autoComplete="address-level2" placeholder="Ex.: Vitória / ES" />
-            </label>
-            <label> Nome da loja <span>*</span>
-              <input name="loja" required maxLength={120} autoComplete="organization" placeholder="Nome da sua loja" />
-            </label>
-            <label> Marcas já trabalhadas <span>*</span>
-              <textarea name="marcas" required maxLength={500} rows={2} placeholder="Quais marcas sua loja trabalha?" />
-            </label>
-            <div className="two-fields">
-              <label> CNPJ <span>*</span>
-                <input name="cnpj" inputMode="numeric" autoComplete="off" required value={cnpj} onChange={(e) => setCnpj(formatCnpj(e.target.value))} placeholder="00.000.000/0000-00" />
-              </label>
-              <label> WhatsApp <span>*</span>
-                <input name="contato" inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} placeholder="(27) 99999-9999" />
-              </label>
-            </div>
-            <input type="hidden" name="interesse" value="Visita ao showroom" />
-            <label className="form-consent">
-              <input type="checkbox" name="consentimento" value="sim" required />
-              <span>Autorizo o contato comercial da Low Profile + Dreams usando os dados informados. <a href="#privacidade">Privacidade</a>.</span>
-            </label>
-            <button type="submit" disabled={status === 'sending' || status === 'success'} className="form-submit">
-              {status === 'success' ? 'Cadastro enviado' : status === 'sending' ? 'Enviando...' : 'Quero conhecer o showroom'}
-              {status === 'success' ? <Check size={18} /> : <ArrowUpRight size={18} />}
-            </button>
-            {formNotice && <p role="status" aria-live="polite" className={'form-notice ' + (status === 'error' ? 'notice-error' : '')}>{formNotice}</p>}
-          </form>
-        </section>
-      </main>
-
-      <footer className="footer">
-        <div className="section-shell">
-          <div className="footer-upper">
-            <div><img src="/logo-lp.png" alt="Low Profile + Dreams" /><p>Representação de moda. Espírito Santo.</p></div>
-            <div className="footer-links"><a href="#espacos">Espaços <ArrowUpRight size={14} /></a><a href="#marcas">Marcas <ArrowUpRight size={14} /></a><a href="#contato">Contato <ArrowUpRight size={14} /></a></div>
-          </div>
-          <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span>
-            <span>VILA VELHA / ES</span>
-            <a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /></a>
-          </div>
-          <details id="privacidade" className="privacy-info">
-            <summary>Privacidade e dados</summary>
-            <p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p>
-          </details>
-        </div>
-      </footer>
-      <a className={'mobile-sticky' + (formVisible || modalOpen || menuOpen ? ' sticky-hidden' : '')} href="#contato">Seja um parceiro <ArrowUpRight size={18} /></a>
-
-      {modalOpen && <dialog ref={dialogRef} className="lightbox" aria-label="Galeria do showroom"
-        onCancel={() => setModalOpen(false)} onClick={e => { if (e.target === e.currentTarget) setModalOpen(false); }}
-        onKeyDown={e => { if(e.key === 'ArrowRight') movePhoto(1); if(e.key === 'ArrowLeft') movePhoto(-1); }}>
-        <button type="button" autoFocus className="lightbox-close" onClick={() => setModalOpen(false)} aria-label="Fechar galeria"><X size={25} /></button>
-        <button type="button" className="lightbox-prev" onClick={() => movePhoto(-1)} aria-label="Imagem anterior"><ArrowLeft size={23} /></button>
-        <figure><img src={imageUrl(currentImage.url, 1600)} alt={currentImage.alt} /><figcaption aria-live="polite">{currentImage.alt} / {String(activePhoto + 1).padStart(2, '0')} de {String(photos.length).padStart(2, '0')}</figcaption></figure>
-        <button type="button" className="lightbox-next" onClick={() => movePhoto(1)} aria-label="Próxima imagem"><ArrowRight size={23} /></button>
-      </dialog>}
-
-    </>
-  );
+    {selectorOpen && <Modal label="Escolha uma marca para ver sua galeria" onClose={() => setSelectorOpen(false)} className="brand-selector"><p className="eyebrow">GALERIA COMPLETA</p><h2>Qual marca você<br />quer conhecer?</h2><p>Escolha uma marca e explore a sua galeria.</p><BrandGrid onChoose={() => setSelectorOpen(false)} /></Modal>}
+    {photo && currentBrand && <Modal label={'Galeria de ' + currentBrand.name} onClose={() => setActivePhoto(null)} className="brand-lightbox" onKeyDown={event => { if (event.key === 'ArrowRight') { event.preventDefault(); movePhoto(1); } if (event.key === 'ArrowLeft') { event.preventDefault(); movePhoto(-1); } }}><div className="lightbox-content"><figure><img src={imageUrl(photo.url, 1600)} alt={photo.alt} /><figcaption aria-live="polite">{photo.alt}<span>{(activePhoto || 0) + 1} / {currentBrand.photos.length}</span></figcaption></figure><div className="lightbox-actions"><button type="button" aria-label="Foto anterior" onClick={() => movePhoto(-1)} disabled={currentBrand.photos.length < 2}><ArrowLeft size={22} /></button><a href={partnerHref(currentBrand)}>Seja parceiro <ArrowUpRight size={16} /></a><button type="button" aria-label="Próxima foto" onClick={() => movePhoto(1)} disabled={currentBrand.photos.length < 2}><ArrowRight size={22} /></button></div></div></Modal>}
+  </div>;
 }
-export default App;
