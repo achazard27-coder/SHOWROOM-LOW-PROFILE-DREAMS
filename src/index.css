@@ -733,3 +733,28 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
  .tile-link { font-size: 14px; }
  .layout-photo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 }
+
+/* About and partnership invitation. */
+.about-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: var(--section); }
+.about-intro h2 { font-size: clamp(1.8rem, 6.5vw, 4rem); line-height: 1.12; margin: 16px 0; }
+.about-intro h1 { font-size: clamp(2.2rem, 9vw, 6rem); line-height: 1.12; margin: 16px 0; }
+.about-body { max-width: 65ch; font-size: 16px; line-height: 1.6; }
+.about-body h3 { font-size: clamp(1.2rem, 3vw, 1.7rem); line-height: 1.4; margin: 0 0 20px; }
+.about-body p { margin: 0 0 20px; font-size: 16px; line-height: 1.6; }
+.about-more summary { display: flex; align-items: center; min-height: 44px; margin-bottom: 16px; cursor: pointer; text-decoration: underline; }
+.about-numbers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; grid-column: 1 / -1; border-top: 1px solid #d7d4cb; padding-top: 24px; }
+.about-numbers > div { display: flex; flex-direction: column; gap: 8px; padding: 0; border: 0; }
+.about-numbers strong { font-size: clamp(2rem, 9vw, 4.5rem); line-height: 1; font-weight: 500; letter-spacing: -.06em; }
+.about-numbers strong span { font-size: .6em; }
+.about-numbers > div > span { font-size: 12px; line-height: 1.5; text-transform: uppercase; }
+.solid-button, .invite-section > a, .text-button, .text-arrow { display: inline-flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 16px 20px; gap: 12px; font-size: 16px; line-height: 1.4; border: 1px solid #24231f; background: #24231f; color: #fff; }
+.solid-button { width: 100%; }
+.text-button, .text-arrow { padding: 8px 0; background: transparent; color: inherit; border: 0; }
+.invite-section, .brand-partner-band { padding: var(--section) var(--gutter); background: #24231f; color: #fff; }
+.invite-section h2, .brand-partner-band h2 { max-width: 950px; margin: 20px 0; font-size: clamp(1.8rem, 6.5vw, 4rem); line-height: 1.12; }
+.invite-section > p { font-size: 16px; line-height: 1.6; }
+.invite-section > .eyebrow { font-size: 12px; }
+.invite-section > a, .brand-partner-band .solid-button { width: 100%; background: #f6f5f1; border-color: #f6f5f1; color: #24231f; margin-top: 20px; }
+.brand-partner-band { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 640px) { .about-more summary { display: none; } .solid-button, .invite-section > a, .brand-partner-band .solid-button { width: fit-content; } }
+@media (min-width: 1024px) { .about-section { grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 80px); } .brand-partner-band { grid-template-columns: 1fr auto; align-items: center; } }

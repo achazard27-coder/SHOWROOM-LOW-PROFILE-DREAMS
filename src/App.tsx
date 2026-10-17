@@ -43,10 +43,14 @@ function Modal({ label, onClose, children, className = '', onKeyDown }: { label:
 }
 function AboutSection({ standalone = false, openBrands }: { standalone?: boolean; openBrands: () => void }) {
   const Heading = standalone ? 'h1' : 'h2';
+  const [wide, setWide] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => { const media = window.matchMedia('(min-width: 640px)'); const update = () => setWide(media.matches); update(); media.addEventListener('change', update); return () => media.removeEventListener('change', update); }, []);
   return <section className={'about-section section-shell' + (standalone ? ' standalone' : '')} id="sobre-nos" aria-labelledby="about-title">
     <div className="about-intro"><p className="eyebrow">SOBRE NÓS / LOWPROFILE & DREAMS</p><Heading id="about-title">Mais de 23 anos conectando grandes marcas aos melhores lojistas do Espírito Santo.</Heading></div>
-    <div className="about-body"><h3>Sua próxima grande marca começa aqui.</h3>{aboutParagraphs.map(text => <p key={text}>{text}</p>)}
-      <p className="about-closing">Sua loja merece marcas que agregam valor. Nós ajudamos você a encontrá-las.</p>
+    <div className="about-body"><h3>Sua próxima grande marca começa aqui.</h3>{aboutParagraphs.slice(0, 3).map(text => <p key={text}>{text}</p>)}
+      <details className="about-more" open={wide || expanded} onToggle={event => { if (!wide) setExpanded(event.currentTarget.open); }}><summary>Ler mais</summary>{aboutParagraphs.slice(3).map(text => <p key={text}>{text}</p>)}
+      <p className="about-closing">Sua loja merece marcas que agregam valor. Nós ajudamos você a encontrá-las.</p></details>
       <button type="button" className="solid-button" onClick={openBrands}>QUERO CONHECER AS MARCAS <ArrowUpRight size={18} /></button>
     </div>
     <div className="about-numbers" aria-label="Nossa trajetória"><div><strong>23<span>+</span></strong><span>anos de história</span></div><div><strong>12</strong><span>marcas no portfólio</span></div><div><strong>400<span>+</span></strong><span>lojistas atendidos</span></div></div>
