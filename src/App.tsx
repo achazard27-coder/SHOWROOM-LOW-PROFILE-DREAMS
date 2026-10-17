@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { ArrowDown, ArrowLeft, ArrowUpRight, ChevronDown, Mail, Menu, X } from 'lucide-react';
+
+const INSTAGRAM_HANDLE = '@lowprofile.dreams';
+const INSTAGRAM_URL = 'https://www.instagram.com/lowprofile.dreams/';
+
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
 import TiltedGridHero from '@/components/ui/tilted-grid-hero';
 import { LayoutGrid, type LayoutGridCard } from '@/components/ui/layout-grid';
 import { brandGalleries, homeGalleryPhotos, type BrandGallery } from './data/brand-gallery';
@@ -55,6 +68,24 @@ function AboutSection({ standalone = false, openBrands }: { standalone?: boolean
     </div>
     <div className="about-numbers" aria-label="Nossa trajetória"><div><strong>23<span>+</span></strong><span>anos de história</span></div><div><strong>12</strong><span>marcas no portfólio</span></div><div><strong>400<span>+</span></strong><span>lojistas atendidos</span></div></div>
   </section>;
+}
+function InstagramCTA() {
+  return (
+    <section className="instagram-section" aria-labelledby="insta-title">
+      <div className="section-shell instagram-inner">
+        <div className="instagram-text">
+          <p className="eyebrow">NOSSO INSTAGRAM</p>
+          <h2 id="insta-title">Siga e acompanhe<br />nosso universo<span className="period">.</span></h2>
+          <p>Novidades, bastidores e as últimas coleções. Fique por dentro do mundo Lowprofile & Dreams.</p>
+        </div>
+        <div className="instagram-action">
+          <a className="instagram-button" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Seguir ${INSTAGRAM_HANDLE} no Instagram`}>
+            <InstagramIcon size={20} /><span>{INSTAGRAM_HANDLE}</span><ArrowUpRight size={18} />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
 }
 function PartnershipInvite() {
   return <section className="invite-section"><p className="eyebrow white">NOVAS CONEXÕES. NOVAS POSSIBILIDADES.</p><h2>Seja um lojista parceiro da Lowprofile & Dreams.</h2><p>Preencha o formulário e entre em contato com nossa equipe comercial.</p><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={20} /></a></section>;
@@ -180,10 +211,10 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
           <div className="section-shell gallery-selector-action"><button className="solid-button" type="button" onClick={openBrands}>Veja a galeria completa <ArrowUpRight size={18} /></button><p>Escolha uma marca para explorar sua galeria.</p></div>
         </section>
         <section className="brands-section section-shell"><div className="section-head"><p className="eyebrow">02 / NOSSAS MARCAS</p><div className="section-heading-row"><h2>Identidades que<br />se conectam<span className="period">.</span></h2><p>Um portfólio de 12 marcas. Encontre as que fazem sentido para sua loja.</p></div></div><BrandGrid /></section>
-        <AboutSection openBrands={openBrands} /><PartnershipInvite /><PartnerForm />
+        <AboutSection openBrands={openBrands} /><InstagramCTA /><PartnershipInvite /><PartnerForm />
       </>}
       {page.kind === 'brands' && <section className="section-shell brands-page"><p className="eyebrow">PORTFÓLIO / 12 MARCAS</p><h1>Nossas marcas<span className="period">.</span></h1><p className="page-lead">Conheça cada marca de perto. Escolha uma para explorar a galeria e conversar com nossa equipe.</p><BrandGrid /><div className="page-bottom-link"><a href="/"> <ArrowLeft size={16} /> Voltar ao início</a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={16} /></a></div></section>}
-      {page.kind === 'about' && <><AboutSection standalone openBrands={openBrands} /><PartnershipInvite /></>}
+      {page.kind === 'about' && <><AboutSection standalone openBrands={openBrands} /><InstagramCTA /><PartnershipInvite /></>}
       {page.kind === 'partner' && <><section className="section-shell partner-page-intro"><p className="eyebrow">SEJA PARCEIRO</p><h1>Seja um lojista parceiro da Lowprofile & Dreams.</h1>{selectedBrand && <p className="brand-interest">Seu interesse: <strong>{selectedBrand.name}</strong> <a href={brandHref(selectedBrand)}>Voltar à marca <ArrowUpRight size={15} /></a></p>}<p>Preencha o formulário e entre em contato com nossa equipe comercial.</p></section><PartnerForm key={selectedBrand?.slug || 'portfolio'} brandName={selectedBrand?.name} /></>}
       {page.kind === 'brand' && <>
         <section className="section-shell brand-page-head"><a className="text-arrow brand-back" href="/marcas/"><ArrowLeft size={18} /> Todas as marcas</a><nav className="breadcrumbs" aria-label="Você está aqui"><a href="/">Início</a><span>/</span><a href="/marcas/">Marcas</a><span>/</span><span aria-current="page">{page.brand.name}</span></nav>
@@ -199,7 +230,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
       {page.kind === 'notfound' && <section className="section-shell not-found"><p className="eyebrow">404 / PÁGINA NÃO ENCONTRADA</p><h1>Vamos encontrar<br />um novo caminho.</h1><p>Esta página não está disponível. Explore nosso portfólio para encontrar a marca que procura.</p><a className="solid-button" href="/marcas/">Conheça nossas marcas <ArrowUpRight size={18} /></a><a className="text-button" href="/"> <ArrowLeft size={16} /> Voltar ao início</a></section>}
     </main>
 
-    <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} loading="lazy" decoding="async" /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /> low.dreams@hotmail.com</a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
+    <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} loading="lazy" decoding="async" /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={14} /></a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"><InstagramIcon size={14} /> Instagram <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /> low.dreams@hotmail.com</a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${INSTAGRAM_HANDLE}`}><InstagramIcon size={18} /> {INSTAGRAM_HANDLE}</a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
     <a className={'partner-sticky' + (!showPartnerBar ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
 
     {selectorOpen && <Modal label="Escolha uma marca para ver sua galeria" onClose={() => setSelectorOpen(false)} className="brand-selector"><p className="eyebrow">GALERIA COMPLETA</p><h2>Qual marca você<br />quer conhecer?</h2><p>Escolha uma marca e explore a sua galeria.</p><BrandGrid onChoose={() => setSelectorOpen(false)} /></Modal>}

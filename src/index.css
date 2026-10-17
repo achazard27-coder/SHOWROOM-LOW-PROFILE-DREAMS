@@ -157,7 +157,17 @@ body.has-partner-bar { padding-bottom: calc(56px + env(safe-area-inset-bottom));
 .partner-sticky > span { font-size: 12px; line-height: 1.4; max-width: 55%; }
 .partner-sticky strong { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.2; }
 .partner-sticky.sticky-hidden { visibility: hidden; opacity: 0; pointer-events: none; transform: translateY(100%); }
-body.has-partner-bar #nl-badge-frame { bottom: calc(64px + env(safe-area-inset-bottom)) !important; }
+#nl-badge-frame { display: none !important; }
+
+/* Instagram CTA section */
+.instagram-section { background: #f6f5f1; padding-block: var(--section); border-top: 1px solid #d7d4cb; }
+.instagram-inner { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: center; }
+.instagram-text .eyebrow { font-size: 12px; }
+.instagram-text h2 { font-size: clamp(1.8rem, 6.5vw, 4rem); line-height: 1.1; margin: 16px 0; }
+.instagram-text p { font-size: 16px; line-height: 1.6; max-width: 55ch; margin: 0; }
+.instagram-action { display: flex; }
+.instagram-button { display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 14px 20px; background: #252521; color: #fff; border: 1px solid #252521; font-size: 16px; line-height: 1.4; }
+@media (min-width: 768px) { .instagram-inner { grid-template-columns: 1.5fr 1fr; } .instagram-action { justify-self: end; align-self: center; } }
 
 /* Shared modal, desktop portfolio menu, and motion preferences. */
 .section-shell { max-width: 1780px; margin-inline: auto; }
