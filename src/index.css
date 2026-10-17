@@ -514,3 +514,9 @@ section[id], main[id], details[id] { scroll-margin-top: 100px; }
  .gallery-category-nav svg { width:13px; }
  .gallery-category-nav span { font-size:8px; }
 }
+
+/* Keep the commercial CTA clear of the hosting platform badge. */
+body:has(#nl-badge-frame) .partner-sticky { bottom:76px; }
+@media(max-width:760px) {
+ body:has(#nl-badge-frame) .partner-sticky { bottom:calc(54px + env(safe-area-inset-bottom)); }
+}
