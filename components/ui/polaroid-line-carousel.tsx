@@ -495,7 +495,7 @@ export default function PolaroidLineCarousel({
       onFocusCapture={() => setInteracting(true)}
       onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget)) setInteracting(false) }}
     >
-      <style>{PL_CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: PL_CSS }} />
       <svg className="pl-string" aria-hidden="true">
         <path ref={pathRef} fill="none" stroke={string} strokeWidth="1.5" strokeLinecap="round" />
       </svg>
