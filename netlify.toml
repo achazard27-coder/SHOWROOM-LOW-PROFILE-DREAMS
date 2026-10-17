@@ -13,7 +13,16 @@
     X-Frame-Options = "SAMEORIGIN"
 
 [images]
-  remote_images = ['https://zansdbambqukamkxvwos\.supabase\.co/storage/v1/object/public/lowprofile\.dreams/.*']
+  remote_images = [
+  'https://zansdbambqukamkxvwos\.supabase\.co/storage/v1/object/public/lowprofile\.dreams/.*',
+  'https://(lojaanimale|bynv|osklenbr|lojafarm)\.vteximg\.com\.br/arquivos/ids/.*',
+  'https://(lojafabula|foxton|lojafarm)\.vtexassets\.com/arquivos/ids/.*',
+  'https://cdn\.shopify\.com/s/files/.*',
+  'https://www\.insiderstore\.com\.br/cdn/shop/files/.*',
+  'https://cdn\.dooca\.store/9528/products/.*',
+  'https://tommy\.fbitsstatic\.net/img/p/.*',
+  'https://static\.dafiti\.com\.br/p/.*'
+]
 
 # Known routes are pre-rendered HTML. Unknown URLs keep an actual 404 status.
 [[redirects]]

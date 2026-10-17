@@ -1,7 +1,8 @@
 import { allPhotos } from './gallery';
 import { brands } from './brands';
+import { publicProductPhotos } from './public-products';
 
-export type BrandGalleryPhoto = { url: string; alt: string; label: string };
+export type BrandGalleryPhoto = { url: string; alt: string; label: string; title?: string; sourceUrl?: string; sourceName?: string; kind?: 'showroom' | 'product' };
 export type BrandGallery = { slug: string; name: string; logo: string; caption?: string; photos: BrandGalleryPhoto[] };
 const original = (index: number, brand: string, label: string): BrandGalleryPhoto => ({
   url: allPhotos[index].url, alt: `${label} — ${brand}, showroom Low Profile + Dreams`, label,
@@ -26,7 +27,7 @@ const slugs: Record<string, string> = {
   FOXTON:'foxton', ETC:'etc', MELISSA:'melissa', OSKLEN:'osklen', 'TOMMY HILFIGER':'tommy-hilfiger',
   'CARLOTA COSTA':'carlota-costa', 'PANŌ':'pano', INSIDER:'insider',
 };
-export const brandGalleries: BrandGallery[] = brands.map(brand => ({...brand, slug:slugs[brand.name], photos:assignments[brand.name] || []}));
+export const brandGalleries: BrandGallery[] = brands.map(brand => ({...brand, slug:slugs[brand.name], photos:[...(assignments[brand.name] || []), ...(publicProductPhotos[slugs[brand.name]] || [])]}));
 export const homeGalleryPhotos: BrandGalleryPhoto[] = [
   ...allPhotos,
   local('7be2e38f-7462-46bf-9f94-4cf87a46282b', 'Araras de peças no showroom Low Profile + Dreams', 'Curadoria de perto'),

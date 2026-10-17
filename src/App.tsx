@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Mail, Menu, X } from 'lucide-react';
-import PolaroidLineCarousel from '@/components/ui/polaroid-line-carousel';
+import { ArrowDown, ArrowLeft, ArrowUpRight, ChevronDown, Mail, Menu, X } from 'lucide-react';
+import TiltedGridHero from '@/components/ui/tilted-grid-hero';
+import { LayoutGrid, type LayoutGridCard } from '@/components/ui/layout-grid';
 import { brandGalleries, homeGalleryPhotos, type BrandGallery } from './data/brand-gallery';
 import { imageUrl, imageSet } from './data/gallery';
 import PartnerForm from './PartnerForm';
@@ -60,7 +61,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [brandsOpen, setBrandsOpen] = useState(false);
   const [selectorOpen, setSelectorOpen] = useState(false);
-  const [activePhoto, setActivePhoto] = useState<number | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
   const brandsButtonRef = useRef<HTMLButtonElement>(null);
@@ -69,7 +70,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
   const currentBrand = page.kind === 'brand' ? page.brand : undefined;
   const selectedBrand = page.kind === 'partner' ? brandGalleries.find(brand => brand.slug === new URLSearchParams(location.split('?')[1] || '').get('marca')) : currentBrand;
   const meta = getPageMeta(location);
-  const photo = currentBrand && activePhoto !== null ? currentBrand.photos[activePhoto] : undefined;
+
 
   useEffect(() => {
     // Query-string context is applied after hydration of the static route.
@@ -79,7 +80,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
   useEffect(() => {
-    setMenuOpen(false); setBrandsOpen(false); setSelectorOpen(false); setActivePhoto(null);
+    setMenuOpen(false); setBrandsOpen(false); setSelectorOpen(false); setGalleryOpen(false);
     document.title = meta.title;
     const description = document.querySelector('meta[name="description"]');
     description?.setAttribute('content', meta.description);
@@ -124,7 +125,6 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     event.preventDefault(); window.history.pushState({}, '', url.pathname + url.search + url.hash); setLocation(url.pathname + url.search);
   }
   const openBrands = () => { setBrandsOpen(false); setMenuOpen(false); setSelectorOpen(true); };
-  const movePhoto = (offset: number) => { if (currentBrand) setActivePhoto(index => ((index || 0) + offset + currentBrand.photos.length) % currentBrand.photos.length); };
 
   return <div onClick={navigate}>
     <a className="skip-link" href="#main">Pular para o conteúdo</a>
@@ -150,9 +150,9 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
           <div className="hero-footnote"><span>MODA, CURADORIA E RELACIONAMENTO</span><a href="#galeria" aria-label="Explorar galeria"><span>EXPLORAR</span><ArrowDown size={15} /></a></div>
         </section>
         <section className="showroom-section" id="galeria" aria-labelledby="gallery-title">
-          <div className="section-shell showroom-heading"><div><p className="eyebrow">01 / NOSSO UNIVERSO</p><h2 id="gallery-title">Um encontro<br /><em>com a sua próxima marca.</em></h2></div><div className="showroom-pitch"><p>Um olhar por dentro da Lowprofile & Dreams. Conheça as marcas e descubra novas possibilidades para a sua loja.</p><span>Arraste as fotos ou use as setas para explorar.</span></div></div>
+          <div className="section-shell showroom-heading"><div><p className="eyebrow">01 / NOSSO UNIVERSO</p><h2 id="gallery-title">Um encontro<br /><em>com a sua próxima marca.</em></h2></div><div className="showroom-pitch"><p>Um olhar por dentro da Lowprofile & Dreams. Conheça as marcas e descubra novas possibilidades para a sua loja.</p><span>Fotografias reais. Novas perspectivas para a sua loja.</span></div></div>
           <nav className="section-shell gallery-category-nav" aria-label="Explore a Lowprofile & Dreams"><button type="button" onClick={openBrands}><span>01</span> Marcas <ChevronDown size={17} /></button><a href="/sobre-nos/"><span>02</span> Sobre nós <ArrowUpRight size={17} /></a><a href="/seja-parceiro/"><span>03</span> Seja parceiro <ArrowUpRight size={17} /></a></nav>
-          <PolaroidLineCarousel slides={homeGalleryPhotos.map(item => ({ image: imageUrl(item.url, 800), title: item.label, alt: item.alt }))} height="clamp(510px, 72svh, 650px)" cardWidth={300} sag={28} swing={0.4} autoplay={0} background="#eae7df" ink="#252521" ariaLabel="Fotografias do showroom — carrossel infinito" />
+          <TiltedGridHero images={homeGalleryPhotos.map(item => ({ src: imageUrl(item.url, 800), alt: item.alt }))} speed={5} tileHeight={59} aspectRatio={4 / 5} gap={9} axis={48} curve={70} fade={12} className="showroom-curved-gallery" />
           <div className="section-shell gallery-selector-action"><button className="solid-button" type="button" onClick={openBrands}>Veja a galeria completa <ArrowUpRight size={18} /></button><p>Escolha uma marca para explorar sua galeria.</p></div>
         </section>
         <section className="brands-section section-shell"><div className="section-head"><p className="eyebrow">02 / NOSSAS MARCAS</p><div className="section-heading-row"><h2>Identidades que<br />se conectam<span className="period">.</span></h2><p>Um portfólio de 12 marcas. Encontre as que fazem sentido para sua loja.</p></div></div><BrandGrid /></section>
@@ -165,7 +165,10 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
         <section className="section-shell brand-page-head"><nav className="breadcrumbs" aria-label="Você está aqui"><a href="/">Início</a><span>/</span><a href="/marcas/">Marcas</a><span>/</span><span aria-current="page">{page.brand.name}</span></nav>
           <div className="brand-page-heading"><div><p className="eyebrow">GALERIA DA MARCA</p><h1 className="brand-page-logo"><BrandLogo key={page.brand.slug} brand={page.brand} /></h1></div><div className="brand-page-pitch"><p>Conheça {page.brand.name} com a Lowprofile & Dreams.</p><a className="solid-button" href={partnerHref(page.brand)}>Seja parceiro <ArrowUpRight size={18} /></a><button className="text-button" type="button" onClick={openBrands}>Selecionar outra marca <ChevronDown size={16} /></button></div></div>
         </section>
-        {page.brand.photos.length > 0 ? <section className="section-shell brand-photo-section" aria-label={'Fotografias de ' + page.brand.name}><div className="brand-photo-grid">{page.brand.photos.map((item, index) => <button type="button" className="brand-photo" key={item.url + index} aria-label={'Ampliar: ' + item.alt} onClick={() => setActivePhoto(index)}><img src={imageUrl(item.url, 1200)} srcSet={imageSet(item.url)} sizes="(max-width: 760px) 100vw, 50vw" alt={item.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" width={1200} height={1600} /><span>{String(index + 1).padStart(2, '0')} <ArrowUpRight size={18} /></span></button>)}</div><p className="photo-help">Toque em uma foto para ampliar.</p></section> : <section className="section-shell"><div className="empty-brand-gallery"><p className="eyebrow">EM BREVE</p><h2>As imagens desta marca serão disponibilizadas em breve.</h2><p>Nossa equipe pode apresentar as coleções e as oportunidades de {page.brand.name} para sua loja.</p><a className="solid-button" href={partnerHref(page.brand)}>Conhecer as coleções <ArrowUpRight size={18} /></a></div></section>}
+        {page.brand.photos.length > 0 ? <section className="section-shell brand-photo-section" aria-label={'Fotografias de ' + page.brand.name}><LayoutGrid key={page.brand.slug} brandName={page.brand.name} partnerHref={partnerHref(page.brand)} onOpenChange={setGalleryOpen} cards={page.brand.photos.map((item, index) => {
+            const photo = item as typeof item & Pick<LayoutGridCard, 'title' | 'sourceUrl' | 'sourceName' | 'kind'>;
+            return { id: `${page.brand.slug}-${index}`, thumbnail: imageUrl(photo.url, 1200), fullSrc: imageUrl(photo.url, 1600), srcSet: imageSet(photo.url), alt: photo.alt, title: photo.title || photo.label, content: <p>{photo.title || photo.label}</p>, sourceUrl: photo.sourceUrl, sourceName: photo.sourceName, kind: photo.kind || 'showroom' };
+          })} /><p className="photo-help">Toque em uma foto para ampliar. Fotos de showroom e referências dos catálogos das marcas; consulte nossa equipe sobre coleções e disponibilidade.</p></section> : <section className="section-shell"><div className="empty-brand-gallery"><p className="eyebrow">EM BREVE</p><h2>As imagens desta marca serão disponibilizadas em breve.</h2><p>Nossa equipe pode apresentar as coleções e as oportunidades de {page.brand.name} para sua loja.</p><a className="solid-button" href={partnerHref(page.brand)}>Conhecer as coleções <ArrowUpRight size={18} /></a></div></section>}
         <div className="section-shell brand-page-bottom"><a className="text-arrow" href="/marcas/"><ArrowLeft size={18} /> Todas as marcas</a><button className="text-button" type="button" onClick={openBrands}>Selecionar outra marca <ArrowUpRight size={18} /></button></div>
         <section className="brand-partner-band section-shell"><div><p className="eyebrow">PARA SUA LOJA</p><h2>Uma nova conexão<br />começa aqui.</h2></div><a className="solid-button" href={partnerHref(page.brand)}>Seja parceiro de {page.brand.name} <ArrowUpRight size={18} /></a></section>
       </>}
@@ -173,9 +176,9 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     </main>
 
     <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /></a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
-    <a className={'partner-sticky' + (formVisible || selectorOpen || activePhoto !== null || menuOpen ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
+    <a className={'partner-sticky' + (formVisible || selectorOpen || galleryOpen || menuOpen ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
 
     {selectorOpen && <Modal label="Escolha uma marca para ver sua galeria" onClose={() => setSelectorOpen(false)} className="brand-selector"><p className="eyebrow">GALERIA COMPLETA</p><h2>Qual marca você<br />quer conhecer?</h2><p>Escolha uma marca e explore a sua galeria.</p><BrandGrid onChoose={() => setSelectorOpen(false)} /></Modal>}
-    {photo && currentBrand && <Modal label={'Galeria de ' + currentBrand.name} onClose={() => setActivePhoto(null)} className="brand-lightbox" onKeyDown={event => { if (event.key === 'ArrowRight') { event.preventDefault(); movePhoto(1); } if (event.key === 'ArrowLeft') { event.preventDefault(); movePhoto(-1); } }}><div className="lightbox-content"><figure><img src={imageUrl(photo.url, 1600)} alt={photo.alt} /><figcaption aria-live="polite">{photo.alt}<span>{(activePhoto || 0) + 1} / {currentBrand.photos.length}</span></figcaption></figure><div className="lightbox-actions"><button type="button" aria-label="Foto anterior" onClick={() => movePhoto(-1)} disabled={currentBrand.photos.length < 2}><ArrowLeft size={22} /></button><a href={partnerHref(currentBrand)}>Seja parceiro <ArrowUpRight size={16} /></a><button type="button" aria-label="Próxima foto" onClick={() => movePhoto(1)} disabled={currentBrand.photos.length < 2}><ArrowRight size={22} /></button></div></div></Modal>}
+
   </div>;
 }
