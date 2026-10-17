@@ -781,3 +781,18 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
 .form-notice { margin: 0; font-size: 16px; line-height: 1.6; }
 @media (min-width: 640px) { .two-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px) { .contact-section { grid-template-columns: 1fr 1fr; } .form-submit { position: sticky; bottom: 16px; z-index: 2; } }
+
+/* Footer with visible contact and comfortable links. */
+.footer { background: #f6f5f1; border-top: 1px solid #d7d4cb; padding-block: var(--section) 24px; }
+.footer-upper, .footer-bottom { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 0; }
+.footer-upper { padding-bottom: 24px; }
+.footer-upper img { width: min(100%, 278px); height: auto; }
+.footer-upper p { font-size: 16px; line-height: 1.6; }
+.footer-links { display: flex; flex-direction: column; gap: 0; width: 100%; }
+.footer a { display: inline-flex; align-items: center; min-height: 44px; gap: 12px; font-size: 16px; }
+.footer-bottom { border-top: 1px solid #d7d4cb; padding-top: 20px; font-size: 12px; }
+.footer-bottom a { max-width: 100%; flex-wrap: wrap; overflow-wrap: anywhere; }
+.privacy-info { margin-top: 24px; max-width: 65ch; font-size: 13px; line-height: 1.5; }
+.privacy-info summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; }
+.privacy-info p { font-size: 13px; line-height: 1.5; }
+@media (min-width: 640px) { .footer-upper { flex-direction: row; justify-content: space-between; } .footer-links { width: auto; } }
