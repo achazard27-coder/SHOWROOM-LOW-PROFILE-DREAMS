@@ -129,6 +129,12 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
     document.body.classList.toggle('has-partner-bar', showPartnerBar);
     return () => document.body.classList.remove('has-partner-bar');
   }, [showPartnerBar]);
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 1024px)');
+    const closeInactiveMenu = () => { if (media.matches) setMenuOpen(false); else setBrandsOpen(false); };
+    media.addEventListener('change', closeInactiveMenu);
+    return () => media.removeEventListener('change', closeInactiveMenu);
+  }, []);
   function navigate(event: MouseEvent<HTMLDivElement>) {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href]');
@@ -156,7 +162,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
         <a className="header-contact" aria-current={page.kind === 'partner' ? 'page' : undefined} href={partnerHref(currentBrand)}>Seja parceiro <ArrowUpRight size={16} /></a>
         <button type="button" className="menu-toggle" onClick={() => { setMenuOpen(!menuOpen); setBrandsOpen(false); }} aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen} aria-controls="mobile-menu">{menuOpen ? <X size={24} /> : <Menu size={24} />}</button>
       </div>
-      {brandsOpen && <div id="brand-mega-menu" className="brand-mega-menu"><div className="mega-intro"><p className="eyebrow">NOSSO PORTFÓLIO</p><h2>Uma marca.<br />Novas possibilidades.</h2><a className="text-arrow" href="/marcas/">Explore todas as marcas <ArrowUpRight size={17} /></a></div><nav className="mega-brands" aria-label="Escolha uma marca">{brandGalleries.map((brand, i) => <a href={brandHref(brand)} key={brand.slug}><span className="mega-number">{String(i + 1).padStart(2, '0')}</span>{brand.name}<ArrowUpRight size={16} /></a>)}</nav></div>}
+      {brandsOpen && <div id="brand-mega-menu" className="brand-mega-menu"><div className="mega-intro"><p className="eyebrow">NOSSO PORTFÓLIO</p><h2>Uma marca.<br />Novas possibilidades.</h2><a className="text-arrow" href="/marcas/">Explore todas as marcas <ArrowUpRight size={17} /></a></div><nav className="mega-brands" aria-label="Escolha uma marca">{brandGalleries.map((brand, i) => <a href={brandHref(brand)} aria-current={currentBrand?.slug === brand.slug ? 'page' : undefined} key={brand.slug}><span className="mega-number">{String(i + 1).padStart(2, '0')}</span>{brand.name}<ArrowUpRight size={16} /></a>)}</nav></div>}
       {menuOpen && <Modal label="Navegação mobile" onClose={() => setMenuOpen(false)} className="mobile-drawer"><nav id="mobile-menu" className="mobile-links" aria-label="Navegação mobile"><details><summary>Marcas <ChevronDown size={18} /></summary><div className="mobile-brand-list">{brandGalleries.map(brand => <a href={brandHref(brand)} aria-current={currentBrand?.slug === brand.slug ? 'page' : undefined} key={brand.slug}>{brand.name}</a>)}</div><a href="/marcas/">Explore todas as marcas <ArrowUpRight size={18} /></a></details><a href="/sobre-nos/" aria-current={page.kind === 'about' ? 'page' : undefined}>Sobre nós <ArrowUpRight size={18} /></a><a href={partnerHref(currentBrand)} aria-current={page.kind === 'partner' ? 'page' : undefined}>Seja parceiro <ArrowUpRight size={18} /></a></nav></Modal>}
     </header>
 

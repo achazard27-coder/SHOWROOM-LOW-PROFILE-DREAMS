@@ -2,11 +2,16 @@ import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { render, getPageMeta, staticPaths } from '../.prerender/entry-server.js';
 const template = await readFile('dist/index.html', 'utf8');
+const critical = await readFile('src/critical.css', 'utf8');
 const escape = text => text.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 for (const path of staticPaths) {
   const meta = getPageMeta(path);
   const metadata = `<link rel="canonical" href="${escape(meta.canonical)}" />\n<meta name="robots" content="${meta.noindex ? 'noindex, follow' : 'index, follow'}" />\n<meta property="og:type" content="website" />\n<meta property="og:title" content="${escape(meta.title)}" />\n<meta property="og:description" content="${escape(meta.description)}" />\n<meta property="og:url" content="${escape(meta.canonical)}" />`;
-  const html = template.replace(/<title>.*?<\/title>/, `<title>${escape(meta.title)}</title>`).replace(/<meta name="description" content="[^"]*"\s*\/>/, `<meta name="description" content="${escape(meta.description)}" />`).replace('</head>', metadata + '\n</head>').replace('<div id="root"></div>', `<div id="root">${render(path)}</div>`);
+  const markup = render(path);
+  const hero = markup.match(/<img[^>]*class="hero-photo"[^>]*>/)?.[0];
+  const heroAttr = name => hero?.match(new RegExp(` ${name}="([^"\\n]*)"`))?.[1];
+  const preload = hero ? `<link rel="preload" as="image" href="${heroAttr('src')}" imagesrcset="${heroAttr('srcSet')}" imagesizes="100vw" fetchpriority="high" />` : '';
+  const html = template.replace(/<title>.*?<\/title>/, `<title>${escape(meta.title)}</title>`).replace(/<meta name="description" content="[^"]*"\s*\/>/, `<meta name="description" content="${escape(meta.description)}" />`).replace('</head>', metadata + preload + `<style data-critical>${critical}</style>\n</head>`).replace('<div id="root"></div>', `<div id="root">${markup}</div>`);
   const output = path === '/404/' ? 'dist/404.html' : join('dist', path, 'index.html');
   await mkdir(join(output, '..'), { recursive: true });
   await writeFile(output, html);
