@@ -80,7 +80,21 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
 .hero-footnote { position: relative; inset: auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px var(--gutter); margin-top: auto; color: #fff; font-size: 12px; letter-spacing: .03em; z-index: 2; }
 .hero-footnote a { display: inline-flex; align-items: center; min-height: 44px; gap: 12px; }
 @media (max-width: 399px) { .hero-footnote a { display: none; } }
-@media (max-width: 639px) { .hero-footnote { display: none; } }
+@media (max-width: 639px) {
+  .hero-footnote { display: none; }
+  /* Mobile: imagem domina, conteúdo ancorado no fundo */
+  .hero { justify-content: flex-end; }
+  .hero-shade { background: linear-gradient(to top, #0c0c0b 0%, rgba(12,12,11,.72) 45%, rgba(12,12,11,.25) 100%); }
+  .hero-copy { padding-top: 28px; padding-bottom: 44px; }
+  .hero-copy > .eyebrow { font-size: 11px; letter-spacing: .07em; }
+  .hero h1 { margin: 10px 0 20px; }
+  /* Esconde parágrafo e botão secundário — menos é mais no mobile */
+  .hero-copy > p { display: none; }
+  .hero-secondary { display: none; }
+  /* Botão primário compacto, não ocupa toda a largura */
+  .hero-actions { width: auto; margin-top: 0; }
+  .hero-button { width: fit-content; min-width: 160px; gap: 16px; }
+}
 @media (min-width: 640px) { .hero-actions { flex-direction: row; width: fit-content; } .hero-button, .hero-secondary { width: auto; gap: 24px; } }
 
 

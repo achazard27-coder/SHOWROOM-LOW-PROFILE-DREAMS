@@ -42,7 +42,8 @@ export const spaces: Space[] = [
   {id:'casa',title:'Detalhes',kicker:'Nosso universo',photos:realPhotos.casa}
 ];
 export function imageUrl(url: string, width: number) {
-  return import.meta.env.DEV ? url : '/.netlify/images?url=' + encodeURIComponent(url) + '&w=' + width + '&fm=webp&q=82';
+  if (import.meta.env.DEV || url.startsWith('https://lh3.googleusercontent.com')) return url;
+  return '/.netlify/images?url=' + encodeURIComponent(url) + '&w=' + width + '&fm=webp&q=82';
 }
 export function imageSet(url: string) {
   return [480, 800, 1200, 1600].map(w => imageUrl(url, w) + ' ' + w + 'w').join(', ');

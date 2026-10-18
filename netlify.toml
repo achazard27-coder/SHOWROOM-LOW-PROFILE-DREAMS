@@ -14,6 +14,7 @@
 
 [images]
   remote_images = [
+  'https://lh3\.googleusercontent\.com/d/.*',
   'https://zansdbambqukamkxvwos\.supabase\.co/storage/v1/object/public/lowprofile\.dreams/.*',
   'https://(lojaanimale|bynv|osklenbr|lojafarm)\.vteximg\.com\.br/arquivos/ids/.*',
   'https://(lojafabula|foxton|lojafarm)\.vtexassets\.com/arquivos/ids/.*',
