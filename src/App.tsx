@@ -21,7 +21,7 @@ import PartnerForm from './PartnerForm';
 import { getPageMeta, resolvePage } from './routing';
 
 const brandHref = (brand: BrandGallery) => `/marcas/${brand.slug}/`;
-const partnerHref = (brand?: BrandGallery) => '/seja-parceiro/' + (brand ? '?marca=' + encodeURIComponent(brand.slug) : '');
+const partnerHref = (_brand?: BrandGallery) => '/#contato';
 const aboutParagraphs = [
   'A Lowprofile & Dreams é referência em representação comercial de moda no Espírito Santo. Há mais de 23 anos, conectamos marcas de destaque nacional e internacional a lojistas multimarcas que buscam qualidade, estilo, diferenciação e novas oportunidades de negócio.',
   'Representamos um portfólio de 12 marcas de peso, com nomes ligados a grandes grupos da moda brasileira, como Grupo Soma, Grupo Dass e Grupo Grendene, além de marcas que são referência em seus segmentos.',
@@ -69,6 +69,14 @@ function AboutSection({ standalone = false, openBrands }: { standalone?: boolean
     <div className="about-numbers" aria-label="Nossa trajetória"><div><strong>23<span>+</span></strong><span>anos de história</span></div><div><strong>12</strong><span>marcas no portfólio</span></div><div><strong>400<span>+</span></strong><span>lojistas atendidos</span></div></div>
   </section>;
 }
+const instagramPhotos = [
+  { id: '1F5RKAdVBa5PFTz3INDXuCKvDPiPfsukS', alt: 'Animale no showroom Low Profile + Dreams' },
+  { id: '1-Ma-tRDl0deOaHhVmGgzLA9_c2Bj__kb', alt: 'Nati Vozza no showroom Low Profile + Dreams' },
+  { id: '1mLyKJKiKtkV6nwFIvAlSOxQN45j8Xm3B', alt: 'FARM no showroom Low Profile + Dreams' },
+  { id: '1sCbESvDU9ac6TxwdfszCKVI2EhK_Wic8', alt: 'Fábula & Bento no showroom Low Profile + Dreams' },
+  { id: '1bswSxuTHCRzy2J6l0VCU6IudD4qXa1ge', alt: 'Moda praia — showroom Low Profile + Dreams' },
+  { id: '1JUdHkIXFY5Qho-XRzSlAuwPO05cKG7pu', alt: 'ETC no showroom Low Profile + Dreams' },
+];
 function InstagramCTA() {
   return (
     <section className="instagram-section" aria-labelledby="insta-title">
@@ -77,18 +85,25 @@ function InstagramCTA() {
           <p className="eyebrow">NOSSO INSTAGRAM</p>
           <h2 id="insta-title">Siga e acompanhe<br />nosso universo<span className="period">.</span></h2>
           <p>Novidades, bastidores e as últimas coleções. Fique por dentro do mundo Lowprofile & Dreams.</p>
+          <div className="instagram-action">
+            <a className="instagram-button" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Seguir ${INSTAGRAM_HANDLE} no Instagram`}>
+              <InstagramIcon size={20} /><span>{INSTAGRAM_HANDLE}</span><ArrowUpRight size={18} />
+            </a>
+          </div>
         </div>
-        <div className="instagram-action">
-          <a className="instagram-button" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Seguir ${INSTAGRAM_HANDLE} no Instagram`}>
-            <InstagramIcon size={20} /><span>{INSTAGRAM_HANDLE}</span><ArrowUpRight size={18} />
-          </a>
-        </div>
+        <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="instagram-grid" aria-label={`Ver perfil ${INSTAGRAM_HANDLE} no Instagram`}>
+          {instagramPhotos.map((photo, i) => (
+            <div key={i} className="instagram-grid-item">
+              <img src={`https://lh3.googleusercontent.com/d/${photo.id}`} alt={photo.alt} loading="lazy" decoding="async" />
+            </div>
+          ))}
+        </a>
       </div>
     </section>
   );
 }
 function PartnershipInvite() {
-  return <section className="invite-section"><p className="eyebrow white">NOVAS CONEXÕES. NOVAS POSSIBILIDADES.</p><h2>Seja um lojista parceiro da Lowprofile & Dreams.</h2><p>Preencha o formulário e entre em contato com nossa equipe comercial.</p><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={20} /></a></section>;
+  return <section className="invite-section"><p className="eyebrow white">NOVAS CONEXÕES. NOVAS POSSIBILIDADES.</p><h2>Seja um lojista parceiro da Lowprofile & Dreams.</h2><p>Preencha o formulário e entre em contato com nossa equipe comercial.</p><a href="/#contato">Seja parceiro <ArrowUpRight size={20} /></a></section>;
 }
 
 export default function App({ initialPath = '/' }: { initialPath?: string }) {
@@ -201,19 +216,19 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
       {page.kind === 'home' && <>
         <section className="hero" aria-labelledby="hero-title">
           {homeGalleryPhotos[4] && <img className="hero-photo" src={imageUrl(homeGalleryPhotos[4].url, 1600)} srcSet={imageSet(homeGalleryPhotos[4].url)} sizes="100vw" decoding="async" alt={homeGalleryPhotos[4].alt} {...{ fetchpriority: 'high' }} width={1200} height={1600} />}
-          <div className="hero-shade" /><div className="hero-copy"><span className="eyebrow white">LOW PROFILE + DREAMS <span className="dash" /> VILA VELHA / ES</span><h1 id="hero-title">Referência de<br />moda no estado <em>ES.</em></h1><p>Há mais de 23 anos conectando marcas e lojistas no Espírito Santo.</p><div className="hero-actions"><a className="hero-button" href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={18} /></a><a className="hero-secondary" href="#galeria">Conheça nosso universo <ArrowDown size={16} /></a></div></div>
+          <div className="hero-shade" /><div className="hero-copy"><span className="eyebrow white">LOW PROFILE + DREAMS <span className="dash" /> VILA VELHA / ES</span><h1 id="hero-title">Referência de<br />moda no estado <em>ES.</em></h1><p>Há mais de 23 anos conectando marcas e lojistas no Espírito Santo.</p><div className="hero-actions"><a className="hero-button" href="/#contato">Seja parceiro <ArrowUpRight size={18} /></a><a className="hero-secondary" href="#galeria">Conheça nosso universo <ArrowDown size={16} /></a></div></div>
           <div className="hero-footnote"><span>MODA, CURADORIA E RELACIONAMENTO</span><a href="#galeria" aria-label="Explorar galeria"><span>EXPLORAR</span><ArrowDown size={15} /></a></div>
         </section>
         <section className="showroom-section" id="galeria" aria-labelledby="gallery-title">
           <div className="section-shell showroom-heading"><div><p className="eyebrow">01 / NOSSO UNIVERSO</p><h2 id="gallery-title">Um encontro<br /><em>com a sua próxima marca.</em></h2></div><div className="showroom-pitch"><p>Um olhar por dentro da Lowprofile & Dreams. Conheça as marcas e descubra novas possibilidades para a sua loja.</p><span>Fotografias reais. Novas perspectivas para a sua loja.</span></div></div>
-          <nav className="section-shell gallery-category-nav" aria-label="Explore a Lowprofile & Dreams"><button type="button" onClick={openBrands}><span>01</span> Marcas <ChevronDown size={17} /></button><a href="/sobre-nos/"><span>02</span> Sobre nós <ArrowUpRight size={17} /></a><a href="/seja-parceiro/"><span>03</span> Seja parceiro <ArrowUpRight size={17} /></a></nav>
+          <nav className="section-shell gallery-category-nav" aria-label="Explore a Lowprofile & Dreams"><button type="button" onClick={openBrands}><span>01</span> Marcas <ChevronDown size={17} /></button><a href="/sobre-nos/"><span>02</span> Sobre nós <ArrowUpRight size={17} /></a><a href="/#contato"><span>03</span> Seja parceiro <ArrowUpRight size={17} /></a></nav>
           <TiltedGridHero images={homeGalleryPhotos.map(item => ({ src: imageUrl(item.url, 800), srcSet: imageSet(item.url), alt: item.alt }))} speed={5} tileHeight={59} aspectRatio={4 / 5} gap={9} axis={48} curve={70} fade={12} className="showroom-curved-gallery" />
           <div className="section-shell gallery-selector-action"><button className="solid-button" type="button" onClick={openBrands}>Veja a galeria completa <ArrowUpRight size={18} /></button><p>Escolha uma marca para explorar sua galeria.</p></div>
         </section>
         <section className="brands-section section-shell"><div className="section-head"><p className="eyebrow">02 / NOSSAS MARCAS</p><div className="section-heading-row"><h2>Identidades que<br />se conectam<span className="period">.</span></h2><p>Um portfólio de 12 marcas. Encontre as que fazem sentido para sua loja.</p></div></div><BrandGrid /></section>
         <AboutSection openBrands={openBrands} /><InstagramCTA /><PartnershipInvite /><PartnerForm />
       </>}
-      {page.kind === 'brands' && <section className="section-shell brands-page"><p className="eyebrow">PORTFÓLIO / 12 MARCAS</p><h1>Nossas marcas<span className="period">.</span></h1><p className="page-lead">Conheça cada marca de perto. Escolha uma para explorar a galeria e conversar com nossa equipe.</p><BrandGrid /><div className="page-bottom-link"><a href="/"> <ArrowLeft size={16} /> Voltar ao início</a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={16} /></a></div></section>}
+      {page.kind === 'brands' && <section className="section-shell brands-page"><p className="eyebrow">PORTFÓLIO / 12 MARCAS</p><h1>Nossas marcas<span className="period">.</span></h1><p className="page-lead">Conheça cada marca de perto. Escolha uma para explorar a galeria e conversar com nossa equipe.</p><BrandGrid /><div className="page-bottom-link"><a href="/"> <ArrowLeft size={16} /> Voltar ao início</a><a href="/#contato">Seja parceiro <ArrowUpRight size={16} /></a></div></section>}
       {page.kind === 'about' && <><AboutSection standalone openBrands={openBrands} /><InstagramCTA /><PartnershipInvite /></>}
       {page.kind === 'partner' && <><section className="section-shell partner-page-intro"><p className="eyebrow">SEJA PARCEIRO</p><h1>Seja um lojista parceiro da Lowprofile & Dreams.</h1>{selectedBrand && <p className="brand-interest">Seu interesse: <strong>{selectedBrand.name}</strong> <a href={brandHref(selectedBrand)}>Voltar à marca <ArrowUpRight size={15} /></a></p>}<p>Preencha o formulário e entre em contato com nossa equipe comercial.</p></section><PartnerForm key={selectedBrand?.slug || 'portfolio'} brandName={selectedBrand?.name} /></>}
       {page.kind === 'brand' && <>
@@ -230,7 +245,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
       {page.kind === 'notfound' && <section className="section-shell not-found"><p className="eyebrow">404 / PÁGINA NÃO ENCONTRADA</p><h1>Vamos encontrar<br />um novo caminho.</h1><p>Esta página não está disponível. Explore nosso portfólio para encontrar a marca que procura.</p><a className="solid-button" href="/marcas/">Conheça nossas marcas <ArrowUpRight size={18} /></a><a className="text-button" href="/"> <ArrowLeft size={16} /> Voltar ao início</a></section>}
     </main>
 
-    <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} loading="lazy" decoding="async" /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/seja-parceiro/">Seja parceiro <ArrowUpRight size={14} /></a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"><InstagramIcon size={14} /> Instagram <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /> low.dreams@hotmail.com</a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${INSTAGRAM_HANDLE}`}><InstagramIcon size={18} /> {INSTAGRAM_HANDLE}</a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
+    <footer className="footer"><div className="section-shell"><div className="footer-upper"><div><a href="/" className="logo-lockup"><img src="/logo-lp.png" alt="Low Profile + Dreams — início" width={556} height={100} loading="lazy" decoding="async" /></a><p>Representação de moda. Espírito Santo.</p></div><nav className="footer-links" aria-label="Navegação do rodapé"><a href="/marcas/">Marcas <ArrowUpRight size={14} /></a><a href="/sobre-nos/">Sobre nós <ArrowUpRight size={14} /></a><a href="/#contato">Seja parceiro <ArrowUpRight size={14} /></a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"><InstagramIcon size={14} /> Instagram <ArrowUpRight size={14} /></a></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} LOW PROFILE + DREAMS</span><span>VILA VELHA / ES</span><a href="mailto:low.dreams@hotmail.com" aria-label="Enviar e-mail"><Mail size={18} /> low.dreams@hotmail.com</a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${INSTAGRAM_HANDLE}`}><InstagramIcon size={18} /> {INSTAGRAM_HANDLE}</a></div><details id="privacidade" className="privacy-info"><summary>Privacidade e dados</summary><p>As informações deste cadastro são destinadas exclusivamente ao contato comercial com lojistas. A política definitiva, o canal do titular e os prazos de retenção devem ser definidos pela empresa.</p></details></div></footer>
     <a className={'partner-sticky' + (!showPartnerBar ? ' sticky-hidden' : '')} href={partnerHref(currentBrand)}><span>{currentBrand ? 'Gostou de ' + currentBrand.name + '?' : 'Sua próxima grande marca começa aqui.'}</span><strong>Seja parceiro <ArrowUpRight size={18} /></strong></a>
 
     {selectorOpen && <Modal label="Escolha uma marca para ver sua galeria" onClose={() => setSelectorOpen(false)} className="brand-selector"><p className="eyebrow">GALERIA COMPLETA</p><h2>Qual marca você<br />quer conhecer?</h2><p>Escolha uma marca e explore a sua galeria.</p><BrandGrid onChoose={() => setSelectorOpen(false)} /></Modal>}

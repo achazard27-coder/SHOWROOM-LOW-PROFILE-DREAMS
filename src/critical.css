@@ -94,6 +94,8 @@ h1 em, h2 em { font-family: Georgia, 'Times New Roman', serif; font-style: itali
   /* Botão primário compacto, não ocupa toda a largura */
   .hero-actions { width: auto; margin-top: 0; }
   .hero-button { width: fit-content; min-width: 160px; gap: 16px; }
+  /* Cortar teto vazio acima do lustre — focar no showroom */
+  .hero-photo { object-position: center 72%; }
 }
 @media (min-width: 640px) { .hero-actions { flex-direction: row; width: fit-content; } .hero-button, .hero-secondary { width: auto; gap: 24px; } }
 
