@@ -43,7 +43,7 @@ export const spaces: Space[] = [
 ];
 export function imageUrl(url: string, width: number) {
   if (import.meta.env.DEV || url.startsWith('https://lh3.googleusercontent.com')) return url;
-  return '/.netlify/images?url=' + encodeURIComponent(url) + '&w=' + width + '&fm=webp&q=82';
+  return '/_vercel/image?url=' + encodeURIComponent(url) + '&w=' + width + '&q=82';
 }
 export function imageSet(url: string) {
   return [480, 800, 1200, 1600].map(w => imageUrl(url, w) + ' ' + w + 'w').join(', ');

@@ -175,10 +175,11 @@ body.has-partner-bar { padding-bottom: calc(56px + env(safe-area-inset-bottom));
 .instagram-text p { font-size: 16px; line-height: 1.6; max-width: 55ch; margin: 0; }
 .instagram-action { display: flex; margin-top: 24px; }
 .instagram-button { display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 14px 20px; background: #252521; color: #fff; border: 1px solid #252521; font-size: 16px; line-height: 1.4; }
-.instagram-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; text-decoration: none; color: inherit; }
-.instagram-grid-item { overflow: hidden; aspect-ratio: 1; }
+.instagram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; }
+.instagram-grid-item { overflow: hidden; aspect-ratio: 1; display: block; text-decoration: none; color: inherit; }
 .instagram-grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
-.instagram-grid:hover .instagram-grid-item img, .instagram-grid:focus-visible .instagram-grid-item img { transform: scale(1.05); }
+.instagram-grid-item:hover img, .instagram-grid-item:focus-visible img { transform: scale(1.05); }
+@media (min-width: 480px) { .instagram-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (min-width: 768px) { .instagram-inner { grid-template-columns: 1fr 1.3fr; align-items: start; } }
 
 /* Shared modal, desktop portfolio menu, and motion preferences. */

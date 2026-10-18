@@ -70,12 +70,14 @@ function AboutSection({ standalone = false, openBrands }: { standalone?: boolean
   </section>;
 }
 const instagramPhotos = [
-  { id: '1F5RKAdVBa5PFTz3INDXuCKvDPiPfsukS', alt: 'Animale no showroom Low Profile + Dreams' },
-  { id: '1-Ma-tRDl0deOaHhVmGgzLA9_c2Bj__kb', alt: 'Nati Vozza no showroom Low Profile + Dreams' },
-  { id: '1mLyKJKiKtkV6nwFIvAlSOxQN45j8Xm3B', alt: 'FARM no showroom Low Profile + Dreams' },
-  { id: '1sCbESvDU9ac6TxwdfszCKVI2EhK_Wic8', alt: 'Fábula & Bento no showroom Low Profile + Dreams' },
-  { id: '1bswSxuTHCRzy2J6l0VCU6IudD4qXa1ge', alt: 'Moda praia — showroom Low Profile + Dreams' },
-  { id: '1JUdHkIXFY5Qho-XRzSlAuwPO05cKG7pu', alt: 'ETC no showroom Low Profile + Dreams' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/816176197_18391675495163847_3153849074304197001_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=QeNtWXDers0Q7kNvwGtYuk7&_nc_oc=AdqC_qRcTYkgyK_Xy12g6id_scIq96qZvZsrr3vu-917qyu7ALR2tJWx1fBujZnIsL8EqnvWQ5-ccUUBAp_lH422&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQOG3_E9nlukqpZOvwEwMPjj0ea3U31YCEjTDiY94MaxAA&oe=6ADAA8D3', href: 'https://www.instagram.com/reel/DdndlBttuQT/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/842767889_18394159888163847_8055431188757102170_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=FjEcuNN4lv0Q7kNvwEOs0OZ&_nc_oc=AdrTrFMcsttgT2bRZv7KXuJvUtWtVO6hIShTmUzOWC70IoOKP_fXB7cFWSfSORbQgi5e-kGw7GgALLeh2Btg9FOZ&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQP9w6JBi4i02NPBSzcnDuBxYbCfoeCDGols-einIFVLSQ&oe=6ADA8D45', href: 'https://www.instagram.com/reel/DeXFBC4xx9A/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/809209693_18391675306163847_9205269112376778590_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=4TarY3UDxWoQ7kNvwFl3L2b&_nc_oc=AdpIKRQ4Fq6Vhejf3u3yYTpj6WLUnx3djz66EoQyKSJUmoHfltcL2JboD0BtfPvxiuhe89WxgHNGnJSSYgR3Sjis&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQNT8m_NNq9QRAO9dTkKZyCbE7_e6x8NHO1cvHEAmReouw&oe=6ADAA87C', href: 'https://www.instagram.com/reel/DdndW0vsGCj/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/829806126_18392535838163847_8221256459846441713_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=HsQvQ4w80UYQ7kNvwEf81lP&_nc_oc=AdqQVQbvs6dKRP6KsC0TKGVCbwvS7TPoyQ909tpcLKfw0DmOzp6juQxP6wyy1xmNS9gsStSZmLZmxmWQ_j3XGG8B&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQOPMvw8F8pCJM5Ae9PL__1nOBpe1bYOZROLGaPvE7K1YA&oe=6ADAA4C4', href: 'https://www.instagram.com/reel/Dd34kQzxYJy/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/844795548_18394164358163847_5826930110962074232_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=RQZvaRB3dK0Q7kNvwHFSQGp&_nc_oc=AdqghQeE_-xHJ5ETjtNr_E6V523NjjVoO9pLC1oZFfMdrnXRkcunmuRnmOkbG4bPNkCUuafRklPEPeOzernDsIjp&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQMPzYc1rml6oaji-imNU0ViC3IidAV94lxl-y_nvrUcow&oe=6ADAABF6', href: 'https://www.instagram.com/reel/DeXJeHDxA95/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/759575623_18384137521163847_3186964410353481889_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFuIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=S233z3s9BF8Q7kNvwEXmX9P&_nc_oc=Adojrbvtbizy_b9_rZf3Hp8xUovDeG4hczb7o6AROnHx0AeQOvZ15lgVKOYl2ayedY6jqpCTjzNryQ1JJA3PICqs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQOa9vKumBb3_AgY3_1lBgoe7kJ8CphKiZMj_FqppcNARA&oe=6ADA99B9', href: 'https://www.instagram.com/p/DbWwzX4DRob/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.71878-15/669931985_1249612660651147_7373093932408293932_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=111&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFuIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=BIu9BAB06mwQ7kNvwHcGMqE&_nc_oc=AdqGdOaiFbzQ5m2h__Tm98tgMnGmMKQbPzEYqyzS2qDCsmPinkngP06ANxGh_xYoiyeBjoEqk-u1nFVPsYdg3-ZC&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQMLLoYFvqGil4CcTsIOwWygUksiNkix_gbhK_2gEeRHrw&oe=6ADA8EEC', href: 'https://www.instagram.com/reel/DXKcnV8Eer9/', alt: 'Publicação Low Profile + Dreams no Instagram' },
+  { src: 'https://scontent.cdninstagram.com/v/t51.82787-15/730992654_18380520943163847_8134287407892444154_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFuIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=8mZuPz7ba38Q7kNvwFWFFwE&_nc_oc=Adopxyi5TYiqM74hdOSf9Gn3lp5Pe-iRItnITLY7EsR88a7oIqXMAY4ugdH3gquCybNGXWJhZ8e_cpw8sX1mHG89&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&oh=00_AQPUWPqs3a9rSIeenhky8JebbQUgskQrMwXurOMp2q7Qlg&oe=6ADA8ACD', href: 'https://www.instagram.com/reel/DX61Bkotj-D/', alt: 'Publicação Low Profile + Dreams no Instagram' },
 ];
 function InstagramCTA() {
   return (
@@ -91,13 +93,13 @@ function InstagramCTA() {
             </a>
           </div>
         </div>
-        <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="instagram-grid" aria-label={`Ver perfil ${INSTAGRAM_HANDLE} no Instagram`}>
+        <div className="instagram-grid" aria-label={`Publicações recentes de ${INSTAGRAM_HANDLE}`}>
           {instagramPhotos.map((photo, i) => (
-            <div key={i} className="instagram-grid-item">
-              <img src={`https://lh3.googleusercontent.com/d/${photo.id}`} alt={photo.alt} loading="lazy" decoding="async" />
-            </div>
+            <a key={i} href={photo.href} target="_blank" rel="noopener noreferrer" className="instagram-grid-item" aria-label={photo.alt}>
+              <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+            </a>
           ))}
-        </a>
+        </div>
       </div>
     </section>
   );

@@ -1,0 +1,36 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ],
+  "images": {
+    "domains": [
+      "lh3.googleusercontent.com",
+      "zansdbambqukamkxvwos.supabase.co",
+      "lojaanimale.vteximg.com.br",
+      "bynv.vteximg.com.br",
+      "osklenbr.vteximg.com.br",
+      "lojafarm.vteximg.com.br",
+      "lojafabula.vtexassets.com",
+      "foxton.vtexassets.com",
+      "lojafarm.vtexassets.com",
+      "cdn.shopify.com",
+      "www.insiderstore.com.br",
+      "cdn.dooca.store",
+      "tommy.fbitsstatic.net",
+      "static.dafiti.com.br",
+      "scontent.cdninstagram.com"
+    ]
+  },
+  "cleanUrls": true,
+  "trailingSlash": true
+}
+
