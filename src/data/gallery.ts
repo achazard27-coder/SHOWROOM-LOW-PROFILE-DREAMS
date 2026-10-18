@@ -42,7 +42,7 @@ export const spaces: Space[] = [
   {id:'casa',title:'Detalhes',kicker:'Nosso universo',photos:realPhotos.casa}
 ];
 export function imageUrl(url: string, width: number) {
-  if (import.meta.env.DEV || url.startsWith('https://lh3.googleusercontent.com')) return url;
+  if (import.meta.env.DEV || url.startsWith('https://lh3.googleusercontent.com') || url.includes('.supabase.co/storage/')) return url;
   return '/_vercel/image?url=' + encodeURIComponent(url) + '&w=' + width + '&q=82';
 }
 export function imageSet(url: string) {

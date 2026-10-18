@@ -76,7 +76,7 @@ export function LayoutGrid({ cards, brandName, partnerHref, onOpenChange }: Layo
   const move = (direction: number) => { if (cards.length > 1) setSelected(index => ((index ?? 0) + direction + cards.length) % cards.length); };
   return <LayoutGroup id={id}>
     <div className="layout-photo-grid">
-      {cards.map((card, index) => <motion.div key={card.id} layoutId={reduced ? undefined : `card-${card.id}`} className={cn('layout-photo-card', index % 4 === 0 || index % 4 === 3 ? 'layout-photo-wide' : '', card.className)} style={{ zIndex: lastSelected === index ? 2 : 1 }} transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 30 }}>
+      {cards.map((card, index) => <motion.div key={card.id} layoutId={reduced ? undefined : `card-${card.id}`} className={cn('layout-photo-card', index === 0 ? 'layout-photo-hero' : index % 4 === 3 ? 'layout-photo-wide' : '', card.className)} style={{ zIndex: lastSelected === index ? 2 : 1 }} transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 30 }}>
         <button className="layout-photo-button" type="button" aria-label={'Ampliar: ' + card.alt} onClick={() => open(index)}>
           <motion.img layoutId={reduced ? undefined : `image-${card.id}-image`} src={card.thumbnail} srcSet={card.srcSet} sizes="(min-width: 1280px) 400px, (min-width: 1024px) 23vw, (min-width: 640px) 30vw, 46vw" alt={card.alt} loading="lazy" decoding="async" width={1200} height={1600} />
           <span className="layout-photo-shade" />

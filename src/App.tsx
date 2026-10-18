@@ -13,7 +13,6 @@ function InstagramIcon({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
-import TiltedGridHero from '@/components/ui/tilted-grid-hero';
 import { LayoutGrid, type LayoutGridCard } from '@/components/ui/layout-grid';
 import { brandGalleries, homeGalleryPhotos, type BrandGallery } from './data/brand-gallery';
 import { imageUrl, imageSet } from './data/gallery';
@@ -103,6 +102,20 @@ function InstagramCTA() {
         </div>
       </div>
     </section>
+  );
+}
+const MOSAIC_INDICES = [0, 1, 2, 3, 5, 6, 7];
+function ShowroomMosaic() {
+  const photos = MOSAIC_INDICES.map(i => homeGalleryPhotos[i]).filter(Boolean);
+  return (
+    <div className="showroom-mosaic" aria-hidden="true">
+      {photos.map((photo, i) => (
+        <div key={i} className={`mosaic-item mosaic-item-${i}`}>
+          <img src={imageUrl(photo.url, 1200)} srcSet={imageSet(photo.url)} sizes="(min-width:1024px) 33vw, (min-width:540px) 33vw, 50vw" alt={photo.alt} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+          <div className="mosaic-item-label">{photo.label}</div>
+        </div>
+      ))}
+    </div>
   );
 }
 function PartnershipInvite() {
@@ -225,7 +238,7 @@ export default function App({ initialPath = '/' }: { initialPath?: string }) {
         <section className="showroom-section" id="galeria" aria-labelledby="gallery-title">
           <div className="section-shell showroom-heading"><div><p className="eyebrow">01 / NOSSO UNIVERSO</p><h2 id="gallery-title">Um encontro<br /><em>com a sua próxima marca.</em></h2></div><div className="showroom-pitch"><p>Um olhar por dentro da Lowprofile & Dreams. Conheça as marcas e descubra novas possibilidades para a sua loja.</p><span>Fotografias reais. Novas perspectivas para a sua loja.</span></div></div>
           <nav className="section-shell gallery-category-nav" aria-label="Explore a Lowprofile & Dreams"><button type="button" onClick={openBrands}><span>01</span> Marcas <ChevronDown size={17} /></button><a href="/sobre-nos/"><span>02</span> Sobre nós <ArrowUpRight size={17} /></a><a href="/#contato"><span>03</span> Seja parceiro <ArrowUpRight size={17} /></a></nav>
-          <TiltedGridHero images={homeGalleryPhotos.map(item => ({ src: imageUrl(item.url, 800), srcSet: imageSet(item.url), alt: item.alt }))} speed={5} tileHeight={59} aspectRatio={4 / 5} gap={9} axis={48} curve={70} fade={12} className="showroom-curved-gallery" />
+          <ShowroomMosaic />
           <div className="section-shell gallery-selector-action"><button className="solid-button" type="button" onClick={openBrands}>Veja a galeria completa <ArrowUpRight size={18} /></button><p>Escolha uma marca para explorar sua galeria.</p></div>
         </section>
         <section className="brands-section section-shell"><div className="section-head"><p className="eyebrow">02 / NOSSAS MARCAS</p><div className="section-heading-row"><h2>Identidades que<br />se conectam<span className="period">.</span></h2><p>Um portfólio de 12 marcas. Encontre as que fazem sentido para sua loja.</p></div></div><BrandGrid /></section>
