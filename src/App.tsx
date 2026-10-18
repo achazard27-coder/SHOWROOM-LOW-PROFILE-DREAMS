@@ -69,15 +69,16 @@ function AboutSection({ standalone = false, openBrands }: { standalone?: boolean
     <div className="about-numbers" aria-label="Nossa trajetória"><div><strong>23<span>+</span></strong><span>anos de história</span></div><div><strong>12</strong><span>marcas no portfólio</span></div><div><strong>400<span>+</span></strong><span>lojistas atendidos</span></div></div>
   </section>;
 }
+const SUPA_CDN = 'https://zrneuchtzdcwijaemynh.supabase.co/storage/v1/object/public/instagram-photos';
 const instagramPhotos = [
-  { src: 'https://lh3.googleusercontent.com/d/1F5RKAdVBa5PFTz3INDXuCKvDPiPfsukS', href: INSTAGRAM_URL, alt: 'Coleções Animale no showroom Low Profile + Dreams' },
-  { src: 'https://lh3.googleusercontent.com/d/1AcYa2GhEWBGyjjnKIG0dcS5B2HnLYWMc', href: INSTAGRAM_URL, alt: 'Ambiente Animale no showroom Low Profile + Dreams' },
-  { src: 'https://lh3.googleusercontent.com/d/1-Ma-tRDl0deOaHhVmGgzLA9_c2Bj__kb', href: INSTAGRAM_URL, alt: 'Espaço Nati Vozza no showroom Low Profile + Dreams' },
-  { src: 'https://lh3.googleusercontent.com/d/1TqbMLfsNWhCbfIIGJ_mNeoVYABdrDnvX', href: INSTAGRAM_URL, alt: 'Nova coleção Nati Vozza no showroom' },
-  { src: 'https://lh3.googleusercontent.com/d/1mLyKJKiKtkV6nwFIvAlSOxQN45j8Xm3B', href: INSTAGRAM_URL, alt: 'Universo FARM no showroom Low Profile + Dreams' },
-  { src: 'https://lh3.googleusercontent.com/d/1bswSxuTHCRzy2J6l0VCU6IudD4qXa1ge', href: INSTAGRAM_URL, alt: 'Moda praia FARM no showroom' },
-  { src: 'https://lh3.googleusercontent.com/d/1sCbESvDU9ac6TxwdfszCKVI2EhK_Wic8', href: INSTAGRAM_URL, alt: 'Coleção Fábula & Bento no showroom' },
-  { src: 'https://lh3.googleusercontent.com/d/1JUdHkIXFY5Qho-XRzSlAuwPO05cKG7pu', href: INSTAGRAM_URL, alt: 'Espaço ETC no showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_844795548.jpg`, href: INSTAGRAM_URL, alt: 'Lançamento Carlota Costa no showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_842767889.jpg`, href: INSTAGRAM_URL, alt: 'Coleção Eclipse no showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_838041908.jpg`, href: INSTAGRAM_URL, alt: 'Novidades do showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_829806126.jpg`, href: INSTAGRAM_URL, alt: 'Bastidores do showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_816176197.jpg`, href: INSTAGRAM_URL, alt: 'Coleções exclusivas no showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_809209693.jpg`, href: INSTAGRAM_URL, alt: 'Últimas tendências no showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_759575623.jpg`, href: INSTAGRAM_URL, alt: 'Marcas premium no showroom Low Profile + Dreams' },
+  { src: `${SUPA_CDN}/ig_731495617.jpg`, href: INSTAGRAM_URL, alt: 'Universo Low Profile + Dreams no Instagram' },
 ];
 function InstagramCTA() {
   return (
