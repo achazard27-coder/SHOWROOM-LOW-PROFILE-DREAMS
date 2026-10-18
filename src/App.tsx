@@ -96,7 +96,7 @@ function InstagramCTA() {
         <div className="instagram-grid" aria-label={`Publicações recentes de ${INSTAGRAM_HANDLE}`}>
           {instagramPhotos.map((photo, i) => (
             <a key={i} href={photo.href} target="_blank" rel="noopener noreferrer" className="instagram-grid-item" aria-label={photo.alt}>
-              <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+              <img src={imageUrl(photo.src, 640)} alt={photo.alt} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
             </a>
           ))}
         </div>

@@ -33,7 +33,7 @@ export const allPhotos: GalleryPhoto[] = [
 export const realPhotos: Record<SpaceId, GalleryPhoto[]> = {
   dreams: [0,3,5,7,9].map(i => allPhotos[i]),
   low: [1,4,6,8,10].map(i => allPhotos[i]),
-  casa: [2,11,0,5].map(i => allPhotos[i]),
+  casa: [2,11].map(i => allPhotos[i]),
 };
 export const galleryUsesRealPhotos = true;
 export const spaces: Space[] = [
